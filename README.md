@@ -11,6 +11,21 @@ and the Eureka Service Discovery from the [Spring Cloud Netflix](https://github.
 
 [![Open in Codeanywhere](https://codeanywhere.com/img/open-in-codeanywhere-btn.svg)](https://app.codeanywhere.com/#https://github.com/spring-petclinic/spring-petclinic-microservices)
 
+## Bootstrap after a fresh clone
+
+On Windows, open PowerShell in the repository root and run:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\scripts\bootstrap.ps1
+```
+
+The bootstrap script installs or verifies JDK 17, uses the checked-in Maven Wrapper (`mvnw.cmd`), and installs or checks Docker Desktop. Use `.\scripts\bootstrap.ps1 -SkipDocker` only if you want the Java/Maven path without Docker.
+
+Spring Boot is managed by Maven dependencies in this repository. You do not need to install a global Spring CLI.
+
+For the full Windows, macOS, and Linux setup notes, see [docs/BOOTSTRAP.md](docs/BOOTSTRAP.md).
+
 ## Starting services locally without Docker
 
 Every microservice is a Spring Boot application and can be started locally using IDE or `../mvnw spring-boot:run` command.
