@@ -116,7 +116,7 @@ Sono opzionali o aggiuntivi rispetto al core:
 - `spring-petclinic-genai-service`, per la funzionalita' chatbot Spring AI. Il `README.md` richiede la scelta del provider OpenAI o Azure OpenAI e le relative variabili d'ambiente quando si configura il provider.
 - `tracing-server` / Zipkin, `spring-petclinic-admin-server`, Grafana e Prometheus: il `README.md` dichiara che Tracing server, Admin server, Grafana e Prometheus sono opzionali in avvio locale.
 - MySQL: la configurazione di default usa HSQLDB in memoria e popolato allo startup; il `README.md` descrive MySQL come setup alternativo per una configurazione persistente.
-- profilo `chaos-monkey`: presente nei `pom.xml` dei servizi dati/applicativi e citato dal `README.md` per lo script `./scripts/run_all.sh`.
+- Chaos Monkey: dipendenza presente nei `pom.xml` dei servizi dati/applicativi; il `README.md` cita il profilo `chaos-monkey` per lo script `./scripts/run_all.sh`.
 
 ## Avvio locale senza Docker
 
