@@ -1,5 +1,7 @@
 # Spring Petclinic Microservices - briefing hands-on
 
+Documento operativo per chi deve orientarsi nel repository durante un hands-on Codex App.
+
 ## Scopo del progetto
 
 Questo repository contiene la versione distribuita di Spring Petclinic: una applicazione di esempio divisa in microservizi Spring Boot e Spring Cloud. Il README spiega che il progetto serve a mostrare come separare la sample application Petclinic in microservizi usando Spring Cloud Gateway, Spring Cloud Circuit Breaker, Spring Cloud Config, Micrometer Tracing, Resilience4j, OpenTelemetry ed Eureka Service Discovery.
