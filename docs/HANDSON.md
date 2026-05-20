@@ -1,18 +1,26 @@
-# Hands-on briefing
+# Hands-on Briefing
 
-Questo repository contiene la versione microservices di Spring PetClinic.
-La base funzionale dichiarata nel `README.md` e' una demo per mostrare come dividere una sample Spring application in microservizi usando Spring Cloud Gateway, Spring Cloud Config, Eureka service discovery, Micrometer Tracing, Resilience4j, OpenTelemetry e Spring Cloud Netflix/Eureka.
+Questo documento riassume il repository in modo operativo usando solo evidenza da `README.md`, dai `pom.xml`, da `docker-compose.yml` e dalla struttura delle cartelle.
 
 ## Scopo del progetto
 
-- Dimostrare una architettura Spring in stile microservices a partire da Spring PetClinic.
-- Esporre un frontend applicativo attraverso l'API Gateway.
-- Centralizzare configurazione, discovery e osservabilita' tramite i servizi di supporto inclusi nel repository.
-- Integrare un servizio GenAI/Chatbot che nel `README.md` e' descritto come supporto a OpenAI di default o Azure OpenAI.
+Il repository contiene la versione microservices di Spring PetClinic.
+Dal `README.md` emerge che il progetto serve a mostrare come dividere una sample Spring application in microservizi usando Spring Cloud Gateway, Spring Cloud Config, Eureka service discovery, Micrometer Tracing, Resilience4j, OpenTelemetry e Spring AI.
+
+Le tecnologie citate nel repository sono:
+
+- Spring Cloud Gateway
+- Spring Cloud Circuit Breaker
+- Spring Cloud Config
+- Spring Cloud Netflix Eureka
+- Micrometer Tracing
+- Resilience4j
+- OpenTelemetry
+- Spring AI
 
 ## Servizi presenti
 
-Dal `pom.xml` root e dalla struttura delle cartelle risultano questi moduli:
+Dalla struttura del repository e dai moduli Maven risultano questi servizi:
 
 - `spring-petclinic-admin-server`
 - `spring-petclinic-customers-service`
@@ -29,120 +37,221 @@ Nel `docker-compose.yml` compaiono anche i container per:
 - `grafana-server`
 - `prometheus-server`
 
+Il `README.md` associa a questi ruoli operativi:
+
+- `config-server`: configurazione centralizzata
+- `discovery-server`: service registry Eureka
+- `api-gateway`: punto di ingresso HTTP dell'applicazione
+- `customers-service`: gestione dati clienti
+- `vets-service`: gestione veterinari
+- `visits-service`: gestione visite
+- `genai-service`: chatbot / interazione in linguaggio naturale
+- `admin-server`: Spring Boot Admin
+
 ## Porte esposte
 
-Dal `README.md` e da `docker-compose.yml`:
+### Avvio locale senza Docker
 
-- `8761` - Discovery Server
-- `8888` - Config Server
-- `8080` - API Gateway
-- `8081` - Customers Service
-- `8082` - Visits Service
-- `8083` - Vets Service
-- `8084` - GenAI Service
-- `9411` - Tracing Server
-- `9090` - Admin Server
-- `3030` - Grafana
-- `9091` - Prometheus
+Il `README.md` indica queste porte o endpoint:
 
-Nel `README.md` e' indicato che, in avvio locale senza Docker, i servizi `customers-service`, `vets-service`, `visits-service` e `genai-service` possono partire su porta casuale; la porta da usare va letta da Eureka.
+- Discovery Server: `8761`
+- Config Server: `8888`
+- API Gateway: `8080`
+- Tracing Server (Zipkin): `9411`
+- Admin Server: `9090`
+- Grafana: `3030`
+- Prometheus: `9091`
+
+Per `customers-service`, `vets-service`, `visits-service` e `genai-service` il `README.md` dice che l'avvio locale usa una porta random e che va verificata su Eureka.
+
+### Docker Compose
+
+Nel `docker-compose.yml` le porte pubblicate sono:
+
+- `config-server`: `8888`
+- `discovery-server`: `8761`
+- `customers-service`: `8081`
+- `visits-service`: `8082`
+- `vets-service`: `8083`
+- `genai-service`: `8084`
+- `api-gateway`: `8080`
+- `tracing-server`: `9411`
+- `admin-server`: `9090`
+- `grafana-server`: `3030` verso la porta interna `3000`
+- `prometheus-server`: `9091` verso la porta interna `9090`
 
 ## Dipendenze principali
 
-Dal `pom.xml` root:
+### Dati comuni dal parent POM
+
+Dal `pom.xml` radice risultano:
 
 - Spring Boot parent `4.0.1`
 - Java `17`
-- Spring Cloud `2025.1.0`
-- plugin/strumenti condivisi per build info, git properties e enforce della versione Java
+- Spring Cloud BOM `2025.1.0`
+- `chaos-monkey-spring-boot`
+- `jolokia-core`
+- `datasource-micrometer-spring-boot`
 
-Dal `pom.xml` dei moduli:
+### Dipendenze per modulo
 
-- `spring-cloud-starter-config` nei servizi che leggono la configurazione centralizzata
-- `spring-cloud-starter-netflix-eureka-client` nei servizi client del registry
-- `spring-cloud-starter-netflix-eureka-server` nel discovery server
-- `spring-cloud-starter-gateway-server-webflux` nell'API Gateway
-- `spring-cloud-config-server` nel config server
-- `spring-boot-admin-starter-server` e `spring-boot-admin-server-ui` nell'admin server
-- `spring-boot-starter-webmvc` e `spring-boot-starter-data-jpa` nei servizi applicativi
-- `spring-boot-starter-actuator`, `micrometer-registry-prometheus` e `jolokia-core` per health/metriche
-- `spring-boot-starter-zipkin` per tracing
-- `hsqldb` come database in-memory di default
-- `mysql-connector-j` per il profilo MySQL
-- `chaos-monkey-spring-boot` nei moduli che lo dichiarano
-- nel `genai-service`, `spring-ai-starter-model-openai` e il BOM `spring-ai-bom`
+- `config-server`
+  - `spring-cloud-config-server`
 
-Dal `README.md` emerge anche che il servizio GenAI puo' essere configurato per OpenAI o Azure OpenAI tramite variabili d'ambiente.
+- `discovery-server`
+  - `spring-cloud-starter-netflix-eureka-server`
+  - `spring-cloud-starter-config`
+  - `jaxb-runtime`
 
-## Core vs opzionale
+- `api-gateway`
+  - `spring-cloud-starter-gateway-server-webflux`
+  - `spring-cloud-starter-config`
+  - `spring-cloud-starter-netflix-eureka-client`
+  - `spring-cloud-starter-circuitbreaker-reactor-resilience4j`
+  - `spring-boot-starter-actuator`
+  - `spring-boot-starter-cache`
+  - `spring-boot-starter-zipkin`
+  - `micrometer-registry-prometheus`
+  - `resilience4j-micrometer`
+  - `jolokia-core`
+  - webjars per frontend statico
+
+- `customers-service`
+  - `spring-boot-starter-data-jpa`
+  - `spring-boot-starter-webmvc`
+  - `spring-boot-starter-actuator`
+  - `spring-boot-starter-zipkin`
+  - `spring-cloud-starter-config`
+  - `spring-cloud-starter-netflix-eureka-client`
+  - `mysql-connector-j`
+  - `hsqldb`
+  - `micrometer-registry-prometheus`
+  - `chaos-monkey-spring-boot`
+  - `datasource-micrometer-spring-boot`
+
+- `vets-service`
+  - `spring-boot-starter-webmvc`
+  - `spring-boot-starter-data-jpa`
+  - `spring-boot-starter-actuator`
+  - `spring-boot-starter-cache`
+  - `spring-boot-starter-zipkin`
+  - `spring-cloud-starter-config`
+  - `spring-cloud-starter-netflix-eureka-client`
+  - `mysql-connector-j`
+  - `hsqldb`
+  - `micrometer-registry-prometheus`
+  - `chaos-monkey-spring-boot`
+  - `datasource-micrometer-spring-boot`
+
+- `visits-service`
+  - `spring-boot-starter-actuator`
+  - `spring-boot-starter-data-jpa`
+  - `spring-boot-starter-webmvc`
+  - `spring-boot-starter-zipkin`
+  - `spring-cloud-starter-config`
+  - `spring-cloud-starter-netflix-eureka-client`
+  - `hsqldb`
+  - `mysql-connector-j`
+  - `micrometer-registry-prometheus`
+  - `chaos-monkey-spring-boot`
+  - `datasource-micrometer-spring-boot`
+
+- `genai-service`
+  - `spring-ai-starter-model-openai`
+  - commento nel POM per `spring-ai-starter-model-azure-openai`
+  - `spring-ai-vector-store`
+  - `spring-boot-starter-webmvc`
+  - `spring-boot-starter-data-jpa`
+  - `spring-boot-starter-actuator`
+  - `spring-boot-starter-cache`
+  - `spring-boot-starter-zipkin`
+  - `spring-cloud-starter-config`
+  - `spring-cloud-starter-netflix-eureka-client`
+  - `spring-cloud-starter-circuitbreaker-reactor-resilience4j`
+  - `spring-cloud-starter-gateway-server-webflux`
+  - `javax.cache:cache-api`
+  - `jakarta.xml.bind:jakarta.xml.bind-api`
+  - `caffeine`
+  - `jolokia-core`
+  - `hsqldb`
+  - `mysql-connector-j`
+  - `micrometer-registry-prometheus`
+  - `chaos-monkey-spring-boot`
+  - `datasource-micrometer-spring-boot`
+
+- `admin-server`
+  - `spring-boot-starter`
+  - `spring-boot-starter-cache`
+  - `spring-cloud-starter-config`
+  - `spring-cloud-starter-netflix-eureka-client`
+  - `spring-boot-admin-starter-server`
+  - `spring-boot-admin-server-ui`
+  - `jolokia-core`
+  - `caffeine`
+
+## Core e opzionale
 
 ### Core
 
-Questa e' la parte minima che il `README.md` descrive come necessaria per un flusso completo:
+Dal `README.md` i servizi di supporto da avviare prima degli altri sono:
 
-- Config Server
-- Discovery Server
-- API Gateway
-- Customers Service
-- Vets Service
-- Visits Service
+- `config-server`
+- `discovery-server`
 
-Il `README.md` include anche il `GenAI Service` nell'elenco dei microservizi e lo tratta come parte integrante dell'applicazione estesa con chatbot.
+Nel flusso base dell'applicazione il `README.md` mostra anche come centrali:
+
+- `api-gateway`
+- `customers-service`
+- `vets-service`
+- `visits-service`
 
 ### Opzionale
 
-Sempre secondo il `README.md`:
+Il `README.md` indica come opzionale l'avvio di:
 
-- Tracing Server
-- Admin Server
-- Grafana
-- Prometheus
+- `tracing-server`
+- `admin-server`
+- `grafana-server`
+- `prometheus-server`
 
-Inoltre, il profilo MySQL e' descritto come alternativa rispetto al database in-memory HSQLDB.
+Il `genai-service` e' presente nel progetto e nel Docker Compose, ma il `README.md` non lo descrive come prerequisito del flusso base.
 
 ## Avvio locale senza Docker
 
-Il `README.md` dice che ogni microservizio e' una applicazione Spring Boot e puo' essere avviato con IDE oppure con `../mvnw spring-boot:run`.
+Il `README.md` dice che ogni microservizio e' una Spring Boot application e puo' essere avviata da IDE oppure con `../mvnw spring-boot:run`.
 
-Punti operativi:
+Sequenza operativa ricavata dal testo:
 
-- il Config Server e il Discovery Server vanno avviati prima degli altri servizi
-- Customers, Vets, Visits e API devono partire dopo i servizi di supporto
-- Tracing Server, Admin Server, Grafana e Prometheus sono opzionali
-- l'API Gateway e' accessibile su `http://localhost:8080`
-- il Discovery Server su `http://localhost:8761`
-- il Config Server su `http://localhost:8888`
-- il Tracing Server su `http://localhost:9411/zipkin/`
-- l'Admin Server su `http://localhost:9090`
-- Grafana su `http://localhost:3030`
-- Prometheus su `http://localhost:9091`
+1. avviare prima `config-server` e `discovery-server`
+2. avviare poi `customers-service`, `vets-service`, `visits-service` e `api-gateway`
+3. avviare `genai-service` solo se serve
+4. consultare Eureka per vedere le porte dei servizi che partono su porta random
 
-Il `README.md` specifica anche che, senza Docker, alcuni servizi non usano una porta fissa ma una porta casuale, quindi la discovery tramite Eureka e' il punto di riferimento operativo.
+Punto di accesso principale:
+
+- `http://localhost:8080/`
 
 ## Avvio con Docker Compose
 
-Il `README.md` e `docker-compose.yml` descrivono un flusso diverso:
+Dal `README.md`:
 
-1. prima si costruiscono le immagini con `./mvnw clean install -P buildDocker`
-2. poi si avvia tutto con `docker compose up` oppure `podman-compose up`
+1. costruire le immagini con `./mvnw clean install -P buildDocker`
+2. in alternativa usare `./mvnw clean install -PbuildDocker -Dcontainer.executable=podman`
+3. avviare con `docker compose up` oppure `podman-compose up`
 
-Caratteristiche operative del flusso Docker Compose:
+Differenze operative rispetto all'avvio locale senza Docker:
 
-- l'ordine di avvio e' coordinato da `depends_on` e `healthcheck`
-- le immagini usano i tag `springcommunity/spring-petclinic-*`
-- il GenAI service riceve le variabili `OPENAI_API_KEY`, `AZURE_OPENAI_KEY` e `AZURE_OPENAI_ENDPOINT`
-- le porte sono mappate in modo esplicito su host, quindi l'accesso e' stabile
+- il compose assegna porte fisse ai container
+- l'ordine di startup e' coordinato con `depends_on` e `healthcheck`
+- `genai-service` riceve le variabili di ambiente `OPENAI_API_KEY`, `AZURE_OPENAI_KEY`, `AZURE_OPENAI_ENDPOINT`
+- il `README.md` avvisa che il gateway puo' impiegare un po' a sincronizzarsi con Eureka subito dopo l'avvio
 
-## Differenza pratica tra i due avvii
+## Lettura pratica per un hands-on
 
-- Senza Docker: ogni servizio e' lanciato come processo Java/Spring Boot separato; l'operatore deve rispettare l'ordine Config -> Discovery -> servizi applicativi.
-- Con Docker Compose: il repository prevede immagini gia' costruite e un avvio coordinato tramite healthcheck; la sequenza e' automatizzata e l'esposizione porte e' dichiarata nel file compose.
+Se devi usare il repository durante un hands-on Codex App:
 
-## Cose da tenere a mente durante un hands-on
-
-- Il repository richiede Java 17.
-- Il `README.md` indica che il branch `main` usa una base image Eclipse Temurin con Java 17 per i container.
-- Il database predefinito e' HSQLDB in-memory.
-- Il profilo MySQL esiste, ma richiede configurazione aggiuntiva.
-- Il servizio GenAI dipende da credenziali esterne se si usa OpenAI o Azure OpenAI.
-
+- usa `8080` come ingresso principale
+- considera `config-server` e `discovery-server` come prerequisiti
+- usa Docker Compose se vuoi porte fisse e startup coordinato
+- usa l'avvio locale senza Docker se vuoi lavorare servizio per servizio
+- verifica su Eureka le porte dei servizi avviati senza Docker
