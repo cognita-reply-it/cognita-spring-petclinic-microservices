@@ -1,173 +1,228 @@
 # Backend Architecture
 
-Questo repository e' un progetto Maven multi-modulo in cui ogni microservizio e' una Spring Boot application autonoma. Il backend applicativo e' distribuito tra API Gateway, Customers Service, Vets Service, Visits Service e GenAI Service, con Config Server e Discovery Server come dipendenze di runtime del flusso locale standard.
+Questo documento mappa il backend di Spring PetClinic Microservices a partire dal codice e dalla configurazione presenti nel repository. Il gateway serve anche il frontend AngularJS legacy, ma qui sono documentati solo i flussi backend e le API consumate dal frontend.
 
-## Servizi backend
+## Moduli e responsabilita
 
-| Modulo | Responsabilita' principale | Note operative |
+| Modulo | Ruolo | Responsabilita principali |
 | --- | --- | --- |
-| `spring-petclinic-api-gateway` | espone il frontend AngularJS e instrada `/api/customer/**`, `/api/vet/**`, `/api/visit/**`, `/api/genai/**`; aggrega owner details | usa Spring Cloud Gateway WebFlux, Eureka client, Config client e circuit breaker |
-| `spring-petclinic-customers-service` | CRUD owners, pet e pet types | usa JPA; default HSQLDB, MySQL opzionale |
-| `spring-petclinic-vets-service` | elenco veterinari e specialita' | usa JPA e cache |
-| `spring-petclinic-visits-service` | creazione e lettura visite, inclusa query aggregata per piu' pet | usa JPA |
-| `spring-petclinic-genai-service` | endpoint chat basato su Spring AI, tool function che leggono/scrivono dati Petclinic e vector store per i veterinari | richiede provider OpenAI o Azure OpenAI per uso completo; dipende anche da Discovery Server per raggiungere Customers e Vets |
-| `spring-petclinic-config-server` | configurazione centralizzata | va avviato prima dei servizi applicativi nel flusso locale senza Docker |
-| `spring-petclinic-discovery-server` | service registry Eureka | va avviato prima dei servizi applicativi nel flusso locale senza Docker |
-| `spring-petclinic-admin-server` | Spring Boot Admin | opzionale |
+| `spring-petclinic-api-gateway` | API Gateway e aggregatore | Espone il frontend statico, instrada `/api/vet/**`, `/api/visit/**`, `/api/customer/**` e `/api/genai/**` verso i servizi registrati in Eureka, espone l'endpoint aggregato `/api/gateway/owners/{ownerId}`. |
+| `spring-petclinic-customers-service` | Customers Service | Gestisce owners, pets e pet types con persistence JPA. Usa HSQLDB di default e MySQL come profilo opzionale. |
+| `spring-petclinic-vets-service` | Vets Service | Espone la lista veterinari e relative specialita. La lista e' cacheable con cache `vets`. |
+| `spring-petclinic-visits-service` | Visits Service | Gestisce le visite per pet e fornisce una query aggregata per piu' pet usata dal gateway. |
+| `spring-petclinic-genai-service` | GenAI Service | Espone la chat AI, inizializza una vector store con dati dei veterinari e fornisce tool function che leggono/scrivono dati Petclinic. Dipende da OpenAI di default, oppure Azure OpenAI se il POM viene modificato. |
+| `spring-petclinic-config-server` | Support service | Spring Cloud Config Server sulla porta `8888`; usa il repository Git remoto di configurazione o il profilo `native` con `GIT_REPO`. |
+| `spring-petclinic-discovery-server` | Support service | Eureka Server sulla porta `8761`; abilita service discovery e load-balanced URI `lb://...`. |
+| `spring-petclinic-admin-server` | Support opzionale | Spring Boot Admin, non richiesto per i flussi applicativi core. |
 
-## Endpoint principali
+## Routing dell'API Gateway
 
-### API Gateway
-
-| Endpoint | Origine | Scopo |
-| --- | --- | --- |
-| `GET /api/gateway/owners/{ownerId}` | `ApiGatewayController` | aggrega owner details da Customers e Visits |
-| `POST /fallback` | `FallbackController` | risposta testuale `503` per fallback del circuit breaker quando la richiesta inoltrata e' una `POST` |
-
-### Route proxy definite nel gateway
-
-| Route pubblica | Destinazione lb:// | Riscrittura |
-| --- | --- | --- |
-| `/api/customer/**` | `customers-service` | `StripPrefix=2` |
-| `/api/vet/**` | `vets-service` | `StripPrefix=2` |
-| `/api/visit/**` | `visits-service` | `StripPrefix=2` |
-| `/api/genai/**` | `genai-service` | `StripPrefix=2` |
-
-### Customers Service
-
-| Endpoint reale | Scopo |
-| --- | --- |
-| `POST /owners` | crea owner |
-| `GET /owners/{ownerId}` | legge un owner singolo |
-| `GET /owners` | legge la lista owners |
-| `PUT /owners/{ownerId}` | aggiorna owner |
-| `GET /petTypes` | legge i tipi di pet |
-| `POST /owners/{ownerId}/pets` | crea pet per owner |
-| `PUT /owners/*/pets/{petId}` | aggiorna pet |
-| `GET /owners/*/pets/{petId}` | legge pet details |
-
-### Vets Service
-
-| Endpoint reale | Scopo |
-| --- | --- |
-| `GET /vets` | legge la lista veterinari |
-
-### Visits Service
-
-| Endpoint reale | Scopo |
-| --- | --- |
-| `POST /owners/*/pets/{petId}/visits` | crea una visita |
-| `GET /owners/*/pets/{petId}/visits` | legge le visite di un pet |
-| `GET /pets/visits?petId=...` | legge visite aggregate per piu' pet |
-
-### GenAI Service
-
-| Endpoint reale | Scopo |
-| --- | --- |
-| `POST /chatclient` | invia il prompt utente al `ChatClient` di Spring AI |
-
-Nota: `VectorStoreController` non espone endpoint HTTP, ma all'evento `ApplicationStartedEvent` carica un `SimpleVectorStore`. Se `vectorstore.json` non e' gia' nel classpath, legge `GET http://vets-service/vets` tramite `WebClient` load-balanced e crea documenti per la ricerca semantica.
-
-## Routing del gateway
+Le route sono definite in `spring-petclinic-api-gateway/src/main/resources/application.yml`. Ogni route usa Eureka (`lb://...`) e `StripPrefix=2`, quindi il prefisso pubblico `/api/<area>` viene rimosso prima di raggiungere il servizio.
 
 ```mermaid
 flowchart LR
-    Browser --> Gateway[api-gateway]
-    Gateway -->|/api/customer/**| Customers[customers-service]
-    Gateway -->|/api/vet/**| Vets[vets-service]
-    Gateway -->|/api/visit/**| Visits[visits-service]
-    Gateway -->|/api/genai/**| GenAI[genai-service]
-    Gateway -->|fallback| Fallback[/POST /fallback/]
+    Client[Browser o client HTTP]
+    Gateway[API Gateway :8080]
+    Customers[customers-service]
+    Vets[vets-service]
+    Visits[visits-service]
+    GenAI[genai-service]
+    Fallback[/POST /fallback/]
+
+    Client -->|/api/customer/**| Gateway -->|lb://customers-service, StripPrefix=2| Customers
+    Client -->|/api/vet/**| Gateway -->|lb://vets-service, StripPrefix=2| Vets
+    Client -->|/api/visit/**| Gateway -->|lb://visits-service, StripPrefix=2| Visits
+    Client -->|/api/genai/**| Gateway -->|lb://genai-service, StripPrefix=2| GenAI
+    Gateway -. circuit breaker .-> Fallback
 ```
 
-## Flusso owner details
+Esempi di riscrittura:
 
-`GET /api/gateway/owners/{ownerId}` e' l'unico endpoint aggregatore esplicito gia' presente nel codice. Il controller:
+| URL pubblico | Route | URL effettivo sul servizio |
+| --- | --- | --- |
+| `GET /api/customer/owners` | `customers-service` | `GET /owners` |
+| `GET /api/customer/owners/{ownerId}` | `customers-service` | `GET /owners/{ownerId}` |
+| `GET /api/customer/petTypes` | `customers-service` | `GET /petTypes` |
+| `GET /api/customer/owners/{ownerId}/pets/{petId}` | `customers-service` | `GET /owners/{ownerId}/pets/{petId}` |
+| `POST /api/customer/owners/{ownerId}/pets` | `customers-service` | `POST /owners/{ownerId}/pets` |
+| `PUT /api/customer/owners/{ownerId}/pets/{petId}` | `customers-service` | `PUT /owners/{ownerId}/pets/{petId}` |
+| `GET /api/vet/vets` | `vets-service` | `GET /vets` |
+| `GET /api/visit/owners/{ownerId}/pets/{petId}/visits` | `visits-service` | `GET /owners/{ownerId}/pets/{petId}/visits` |
+| `POST /api/visit/owners/{ownerId}/pets/{petId}/visits` | `visits-service` | `POST /owners/{ownerId}/pets/{petId}/visits` |
+| `POST /api/genai/chatclient` | `genai-service` | `POST /chatclient` |
 
-1. legge l'owner dal `CustomersServiceClient`;
-2. estrae gli ID dei pet presenti nel DTO;
-3. chiama `VisitsServiceClient.getVisitsForPets(...)`;
-4. protegge la seconda chiamata con un circuit breaker;
-5. in caso di errore del visits service, restituisce comunque l'owner con lista visite vuota.
+La route GenAI ha anche un circuit breaker dedicato `genaiCircuitBreaker`; il gateway definisce inoltre un circuit breaker di default e un retry di una volta per richieste `POST` con status `SERVICE_UNAVAILABLE`.
+
+## Endpoint backend principali
+
+Gli endpoint sotto sono stati verificati nei controller Java o nella configurazione del gateway.
+
+| Servizio | Endpoint | Scopo |
+| --- | --- | --- |
+| API Gateway | `GET /api/gateway/owners/{ownerId}` | Aggrega owner e pets da Customers Service con visite da Visits Service. |
+| API Gateway | `POST /fallback` | Fallback testuale per circuit breaker; oggi e' mappato come `POST`, quindi non copre chiamate `GET`. |
+| Customers | `GET /owners` | Lista completa owners. Non ci sono filtri lato backend. |
+| Customers | `POST /owners` | Crea un owner. |
+| Customers | `GET /owners/{ownerId}` | Legge un owner per id. Il controller ritorna `Optional<Owner>`. |
+| Customers | `PUT /owners/{ownerId}` | Aggiorna un owner o solleva `ResourceNotFoundException`. |
+| Customers | `GET /petTypes` | Lista tipi pet. |
+| Customers | `GET /owners/*/pets/{petId}` | Dettaglio pet. Il segmento owner e' wildcard e non viene validato contro il pet. |
+| Customers | `POST /owners/{ownerId}/pets` | Crea un pet sotto un owner esistente. |
+| Customers | `PUT /owners/*/pets/{petId}` | Aggiorna un pet. Il body `PetRequest.id()` guida il lookup. |
+| Vets | `GET /vets` | Lista veterinari. |
+| Visits | `GET /owners/*/pets/{petId}/visits` | Lista visite per singolo pet. |
+| Visits | `POST /owners/*/pets/{petId}/visits` | Crea una visita per pet. |
+| Visits | `GET /pets/visits?petId=1,2` | Lista visite per piu' pet, wrappata come `{ "items": [...] }`; usata dall'aggregazione gateway. |
+| GenAI | `POST /chatclient` | Invia una query testuale al `ChatClient` Spring AI e ritorna testo. |
+
+`VectorStoreController` del GenAI Service non espone endpoint HTTP. All'evento `ApplicationStartedEvent` carica `vectorstore.json` dal classpath se presente; in caso contrario legge `GET http://vets-service/vets` tramite `WebClient` load-balanced e crea documenti per la ricerca semantica.
+
+Gap da tenere presenti:
+
+- Gli endpoint con `owners/*` non verificano che l'owner nel path corrisponda al pet o alle visite.
+- `OwnerResource.findOwner` restituisce `Optional<Owner>`; il comportamento per id inesistente non e' modellato come contratto errore esplicito nel controller.
+- La chat GenAI cattura eccezioni e ritorna una stringa di fallback, non un payload errore strutturato.
+- La vector store GenAI carica `vectorstore.json` dal classpath se esiste; se il file viene rimosso tenta di interrogare `vets-service` a startup e puo' consumare crediti AI.
+- `AIDataProvider.getCustomerServiceUri()` prende la prima istanza Eureka di `customers-service`; se il servizio non e' registrato non c'e' un fallback locale nel codice.
+
+## Aggregazione Owner Details
+
+`ApiGatewayController.getOwnerDetails` non passa dalla route gateway verso Customers/Visits, ma usa due client `WebClient` load-balanced con host logici `http://customers-service` e `http://visits-service`.
 
 ```mermaid
 sequenceDiagram
-    participant UI
-    participant Gateway as ApiGatewayController
-    participant Customers as customers-service
-    participant Visits as visits-service
+    participant UI as Browser
+    participant GW as API Gateway
+    participant CS as Customers Service
+    participant VS as Visits Service
 
-    UI->>Gateway: GET /api/gateway/owners/{ownerId}
-    Gateway->>Customers: GET /owners/{ownerId}
-    Customers-->>Gateway: OwnerDetails
-    Gateway->>Visits: GET /pets/visits?petId=...
-    alt visits disponibili
-        Visits-->>Gateway: Visits.items
-        Gateway-->>UI: OwnerDetails con visits aggregate
-    else errore visits
-        Gateway-->>UI: OwnerDetails con visits vuote
+    UI->>GW: GET /api/gateway/owners/{ownerId}
+    GW->>CS: GET /owners/{ownerId}
+    CS-->>GW: OwnerDetails con pets
+    GW->>GW: Estrae petIds dagli owner pets
+    GW->>VS: GET /pets/visits?petId=1,2,...
+    alt Visits Service disponibile
+        VS-->>GW: Visits { items: [...] }
+        GW->>GW: Distribuisce ogni visita nel pet con id corrispondente
+    else errore Visits Service
+        GW->>GW: Circuit breaker getOwnerDetails usa lista visite vuota
     end
+    GW-->>UI: OwnerDetails aggregato
 ```
 
-## Flussi applicativi principali
-
-- Pagina owners: il frontend chiama `GET /api/customer/owners`, che il gateway inoltra al Customers Service.
-- Owner details: il frontend chiama `GET /api/gateway/owners/{ownerId}` e riceve un DTO aggregato.
-- Pet form: il frontend usa `GET /api/customer/petTypes`, `GET /api/customer/owners/{ownerId}`, `GET /api/customer/owners/{ownerId}/pets/{petId}`, `POST /api/customer/owners/{ownerId}/pets` e `PUT /api/customer/owners/{ownerId}/pets/{petId}`.
-- Visits form: il frontend usa `GET /api/visit/owners/{ownerId}/pets/{petId}/visits` e `POST /api/visit/owners/{ownerId}/pets/{petId}/visits`.
-- Chatbox: il frontend usa `POST /api/genai/chatclient`, che il gateway inoltra al GenAI Service.
-- GenAI tools: `PetclinicTools` delega ad `AIDataProvider`; `listOwners`, `addOwnerToPetclinic` e `addPetToOwner` usano Customers Service, mentre `listVets` interroga il vector store popolato dai dati del Vets Service.
+Il fallback copre solo errori nella chiamata a Visits Service: se Customers Service fallisce o non trova l'owner, l'endpoint aggregato non costruisce una risposta alternativa.
 
 ## Dipendenze runtime
 
-- Config Server: ogni servizio usa `spring.config.import` verso Config Server; in profilo `docker` il gateway e il GenAI service puntano a `http://config-server:8888`.
-- Discovery Server: il gateway usa URI `lb://...`; Customers, Vets, Visits e GenAI sono progettati per essere risolti tramite Eureka client.
-- Database di default: HSQLDB in-memory per Customers, Vets e Visits; il GenAI Service include HSQLDB tra le dipendenze, ma la persistenza applicativa documentata riguarda principalmente i servizi dati Petclinic.
-- Database opzionale: MySQL Connector/J e profilo `mysql` sono presenti per gli scenari persistenti documentati nel README. La configurazione effettiva del datasource arriva dal Config Server/config repository, non dai soli `application.yml` locali dei moduli.
-- GenAI opzionale: `spring-petclinic-genai-service` puo' usare OpenAI di default (`OPENAI_API_KEY`, con fallback `demo`) oppure Azure OpenAI (`AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_KEY`).
+### Config Server
 
-## Fallback e limiti attuali
+Ogni servizio applicativo importa `optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}`. Nel profilo `docker`, l'import diventa `configserver:http://config-server:8888` e non e' opzionale. Il Config Server usa per default `https://github.com/spring-petclinic/spring-petclinic-microservices-config`, oppure il backend filesystem con profilo `native` e variabile `GIT_REPO`.
 
-- Il gateway ha un `defaultCircuitBreaker` globale per le route e un circuit breaker dedicato sulla route `/api/genai/**`.
-- L'aggregazione owner details ha un fallback esplicito a lista visite vuota.
-- Il fallback HTTP centralizzato del gateway espone solo `POST /fallback` e un messaggio testuale "Chat is currently unavailable. Please try again later."; questo e' coerente con la chat GenAI, ma non va letto come contratto errore completo per tutte le route e tutti i metodi.
-- Il GenAI service cattura eccezioni nel controller chat e restituisce lo stesso messaggio testuale.
-- `AIDataProvider.getCustomerServiceUri()` usa la prima istanza Eureka di `customers-service`; se il servizio non e' registrato, non c'e' un fallback locale nel codice.
-- Il contratto errore non e' ancora descritto in modo uniforme tra customers e visits; oggi il repository espone eccezioni e validazioni ma non un documento API error dedicato.
+### Discovery Server
+
+Il Discovery Server espone Eureka su `8761`. Gateway, Customers, Vets, Visits, GenAI e Admin includono client Eureka; il gateway usa le route `lb://customers-service`, `lb://vets-service`, `lb://visits-service` e `lb://genai-service`.
+
+### Database
+
+Customers, Vets e Visits includono HSQLDB e MySQL Connector/J. Il flusso locale documentato nel README usa HSQLDB in memoria e inizializza schema/dati da `src/main/resources/db/hsqldb/{schema,data}.sql`. MySQL e' opzionale: si abilita con profilo Spring `mysql` sui tre servizi dati e richiede un database PetClinic esterno piu' configurazione coerente dal Config Server.
+
+GenAI include anch'esso dipendenze HSQLDB/MySQL, ma il flusso principale del codice qui presente riguarda chat, tools e vector store; non va trattato come persistence production-ready senza ulteriore verifica.
+
+### OpenAI e Azure OpenAI
+
+`spring-petclinic-genai-service` dipende dal modulo Spring AI OpenAI nel POM:
+
+- OpenAI e' il provider abilitato nel POM (`spring-ai-starter-model-openai`).
+- Azure OpenAI e' presente come alternativa commentata e richiede modifica del POM a `spring-ai-starter-model-azure-openai`.
+- `OPENAI_API_KEY` ha default `demo` in `application.yml`; Azure richiede `AZURE_OPENAI_KEY` e `AZURE_OPENAI_ENDPOINT`.
+
+Questa integrazione e' opzionale per i flussi backend core. Senza credenziali o provider disponibile, la chat puo' rispondere con fallback testuale.
+
+### Porte locali
+
+`scripts/run_all.sh` avvia i jar su porte esplicite:
+
+| Servizio | Porta |
+| --- | --- |
+| Config Server | `8888` |
+| Discovery Server | `8761` |
+| Customers Service | `8081` |
+| Visits Service | `8082` |
+| Vets Service | `8083` |
+| GenAI Service | `8084` |
+| API Gateway | `8080` |
+| Admin Server | `9090` |
+
+Con avvio IDE o `spring-boot:run`, il README indica Customers, Vets, Visits e GenAI su porta random registrata in Eureka, mentre il gateway resta il punto di ingresso frontend/API.
+
+## Flussi principali
+
+### Lista owners
+
+1. Il frontend chiama `GET /api/customer/owners`.
+2. Gateway applica route `customers-service` e rimuove `/api/customer`.
+3. Customers Service riceve `GET /owners` e ritorna `ownerRepository.findAll()`.
+
+### Dettaglio owner aggregato
+
+1. Il frontend chiama `GET /api/gateway/owners/{ownerId}`.
+2. Il gateway legge l'owner da Customers Service con `GET /owners/{ownerId}`.
+3. Il gateway legge le visite da Visits Service con `GET /pets/visits?petId=<ids>`.
+4. Il gateway aggiunge le visite ai pet corrispondenti nel DTO `OwnerDetails`.
+5. Se Visits Service fallisce, il circuit breaker ritorna owner e pet senza visite.
+
+### Lista veterinari
+
+1. Il frontend chiama `GET /api/vet/vets`.
+2. Gateway inoltra a `GET /vets`.
+3. Vets Service ritorna `vetRepository.findAll()` con cache `vets`.
+
+### Creazione visita
+
+1. Il frontend chiama `POST /api/visit/owners/{ownerId}/pets/{petId}/visits`.
+2. Gateway inoltra a Visits Service come `POST /owners/{ownerId}/pets/{petId}/visits`.
+3. Visits Service imposta `visit.petId` dal path e salva con `visitRepository.save(visit)`.
+
+### Chat GenAI
+
+1. Il widget chat chiama `POST /api/genai/chatclient` con body JSON stringificato.
+2. Gateway inoltra a `POST /chatclient`.
+3. GenAI Service passa il testo al `ChatClient` Spring AI con tools PetClinic.
+4. Le tool function in `PetclinicTools` delegano ad `AIDataProvider`: `listOwners`, `addOwnerToPetclinic` e `addPetToOwner` usano Customers Service; `listVets` usa il vector store popolato dai dati del Vets Service.
+5. In caso di eccezione il servizio ritorna `"Chat is currently unavailable. Please try again later."`.
 
 ## Test backend esistenti
 
-| Modulo | Test presenti | Focus |
+| Modulo | Test presenti | Cosa coprono |
 | --- | --- | --- |
-| `spring-petclinic-api-gateway` | `ApiGatewayApplicationTests`, `ApiGatewayControllerTest`, `VisitsServiceClientIntegrationTest` | context load, aggregazione owner details, client visits |
-| `spring-petclinic-customers-service` | `PetResourceTest` | lettura pet |
-| `spring-petclinic-vets-service` | `VetResourceTest` | lista vets |
-| `spring-petclinic-visits-service` | `VisitResourceTest` | query `GET /pets/visits` |
-| `spring-petclinic-config-server` | `PetclinicConfigServerApplicationTests` | context load |
-| `spring-petclinic-discovery-server` | `DiscoveryServerApplicationTests` | context load |
-| `spring-petclinic-genai-service` | nessun test sotto `src/test` in questo checkout | gap di copertura: endpoint chat, tool function e vector store non sono coperti da test locali |
+| `spring-petclinic-api-gateway` | `ApiGatewayApplicationTests`, `ApiGatewayControllerTest`, `VisitsServiceClientIntegrationTest` | Boot context, aggregazione owner details, fallback Resilience4j e client Visits. |
+| `spring-petclinic-customers-service` | `PetResourceTest` | Lettura dettaglio pet via `GET /owners/{ownerId}/pets/{petId}`. Non c'e' un test dedicato a `OwnerResource`. |
+| `spring-petclinic-vets-service` | `VetResourceTest` | Lista veterinari via `GET /vets`. |
+| `spring-petclinic-visits-service` | `VisitResourceTest` | Query aggregata `GET /pets/visits?petId=111,222`. |
+| `spring-petclinic-config-server` | `PetclinicConfigServerApplicationTests` | Boot context Config Server. |
+| `spring-petclinic-discovery-server` | `DiscoveryServerApplicationTests` | Boot context Eureka Server. |
+| `spring-petclinic-genai-service` | Nessun test sotto `src/test` in questo checkout. | Gap di copertura: endpoint chat, tool function e vector store non sono coperti da test locali. |
 
-## Come eseguire i test backend
-
-Comandi mirati per modulo:
+Comandi utili:
 
 ```bash
+# Tutti i test del repository
+./mvnw test
+
+# Slice backend core
+./mvnw -pl spring-petclinic-api-gateway,spring-petclinic-customers-service,spring-petclinic-vets-service,spring-petclinic-visits-service test
+
+# Singolo modulo
 ./mvnw -pl spring-petclinic-api-gateway test
 ./mvnw -pl spring-petclinic-customers-service test
 ./mvnw -pl spring-petclinic-vets-service test
 ./mvnw -pl spring-petclinic-visits-service test
-./mvnw -pl spring-petclinic-genai-service test
+
+# Singolo test
+./mvnw -pl spring-petclinic-api-gateway -Dtest=ApiGatewayControllerTest test
 ```
 
-Comando aggregato dal root:
-
-```bash
-./mvnw test
-```
-
-## Note di validazione
-
-Questo documento e' stato validato tramite lettura di `README.md`, `pom.xml`, `docker-compose.yml`, dei file `application.yml`, dei controller Java e dei test presenti. Non e' una prova che i servizi siano stati avviati in questa sessione.
+Per questa documentazione non serve avviare Docker, Config Server, Eureka o provider GenAI: la validazione corretta consiste nel confrontare endpoint, route, dipendenze e test con codice, configurazione e script del repository.
 
 File sorgente usati come riferimento principale:
 
