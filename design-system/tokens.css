@@ -1,0 +1,83 @@
+:root {
+  --pc-color-brand-green: #6db33f;
+  --pc-color-brand-charcoal: #34302d;
+  --pc-color-nav-hover-text: #eeeeee;
+
+  --pc-color-surface-page: #ffffff;
+  --pc-color-surface-muted: #f1f1f1;
+  --pc-color-surface-subtle: #f9f9f9;
+
+  --pc-color-text-primary: #34302d;
+  --pc-color-text-inverse: #ffffff;
+  --pc-color-text-black: #000000;
+
+  --pc-color-border-default: #dee2e6;
+  --pc-color-border-subtle: #e1e1e1;
+  --pc-color-border-input: #cccccc;
+  --pc-color-border-focus: #86b7fe;
+
+  --pc-color-chat-header: #075e54;
+  --pc-color-chat-header-hover: #128c7e;
+  --pc-color-chat-user-bubble: #dcf8c6;
+  --pc-color-chat-bot-bubble: #ffffff;
+
+  --pc-color-bootstrap-primary: #0d6efd;
+  --pc-color-bootstrap-success: #198754;
+  --pc-color-bootstrap-danger: #dc3545;
+  --pc-color-bootstrap-warning: #ffc107;
+  --pc-color-bootstrap-secondary: #6c757d;
+
+  --pc-font-body: "varela_roundregular", sans-serif;
+  --pc-font-heading: "montserratregular", sans-serif;
+  --pc-font-navigation: "montserratregular", sans-serif;
+
+  --pc-font-size-nav: 14px;
+  --pc-font-size-body: 16px;
+  --pc-font-size-h3: 16px;
+  --pc-font-size-h2: 18px;
+  --pc-font-size-mobile-subtitle: 21px;
+  --pc-font-size-h1: 24px;
+
+  --pc-line-height-body: 1.5;
+  --pc-line-height-tight: 21px;
+  --pc-line-height-heading: 24px;
+  --pc-line-height-display: 30px;
+
+  --pc-font-weight-regular: 400;
+  --pc-font-weight-bold: 700;
+
+  --pc-space-0: 0;
+  --pc-space-1: 6px;
+  --pc-space-2: 10px;
+  --pc-space-3: 12px;
+  --pc-space-4: 20px;
+  --pc-space-5: 28px;
+  --pc-space-6: 30px;
+  --pc-space-7: 40px;
+  --pc-space-8: 100px;
+
+  --pc-radius-none: 0;
+  --pc-radius-sm: 4px;
+  --pc-radius-md: 6px;
+  --pc-radius-lg: 10px;
+  --pc-radius-pill: 20px;
+  --pc-radius-round: 50%;
+
+  --pc-shadow-none: none;
+  --pc-shadow-chatbox: 0 0 10px rgba(0, 0, 0, 0.1);
+  --pc-shadow-bootstrap: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+
+  --pc-motion-fast: 120ms ease-in-out;
+  --pc-motion-base: 150ms ease;
+
+  --pc-layout-nav-brand-width: 229px;
+  --pc-layout-nav-brand-height: 46px;
+  --pc-layout-nav-brand-mobile-width: 148px;
+  --pc-layout-nav-brand-mobile-height: 50px;
+  --pc-layout-nav-link-padding: 28px 20px;
+  --pc-layout-chatbox-width: 300px;
+  --pc-layout-chatbox-height: 400px;
+  --pc-layout-chatbox-offset: 10px;
+  --pc-layout-chatbox-message-max-width: 80%;
+  --pc-breakpoint-mobile: 768px;
+}

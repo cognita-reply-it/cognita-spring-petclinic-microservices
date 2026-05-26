@@ -1,0 +1,320 @@
+{
+  "url": "http://localhost:8080/",
+  "extractedAt": "2026-05-26T09:26:31.892Z",
+  "siteName": "PetClinic",
+  "logo": null,
+  "favicons": [
+    {
+      "type": "shortcut icon",
+      "url": "http://localhost:8080/images/favicon.png",
+      "sizes": null
+    },
+    {
+      "type": "favicon.ico",
+      "url": "http://localhost:8080/favicon.ico",
+      "sizes": null
+    }
+  ],
+  "colors": {
+    "semantic": {},
+    "palette": [
+      {
+        "color": "rgb(52, 48, 45)",
+        "normalized": "#34302d",
+        "count": 9,
+        "confidence": "medium",
+        "sources": [],
+        "lch": "lch(20.18% 2.8 66.08)",
+        "oklch": "oklch(31.23% 0.008 59.39)"
+      },
+      {
+        "color": "rgb(255, 255, 255)",
+        "normalized": "#ffffff",
+        "count": 4,
+        "confidence": "high",
+        "sources": [
+          "chatbox-header"
+        ],
+        "lch": "lch(100% 0 158.2)",
+        "oklch": "oklch(100% 0 89.88)"
+      },
+      {
+        "color": "rgb(0, 0, 0)",
+        "normalized": "#000000",
+        "count": 3,
+        "confidence": "high",
+        "sources": [
+          "chatbox-header"
+        ],
+        "lch": "lch(0% 0 0)",
+        "oklch": "oklch(0% 0 0)"
+      },
+      {
+        "color": "rgb(16, 16, 16)",
+        "normalized": "#101010",
+        "count": 1,
+        "confidence": "medium",
+        "sources": [
+          "hover/focus"
+        ]
+      },
+      {
+        "color": "rgb(18, 140, 126)",
+        "normalized": "#128c7e",
+        "count": 1,
+        "confidence": "medium",
+        "sources": [
+          "hover/focus"
+        ]
+      }
+    ],
+    "cssVariables": {},
+    "_raw": [
+      {
+        "color": "rgb(0, 0, 0)",
+        "normalized": "#000000",
+        "count": 3
+      },
+      {
+        "color": "rgb(52, 48, 45)",
+        "normalized": "#34302d",
+        "count": 9
+      },
+      {
+        "color": "rgb(255, 255, 255)",
+        "normalized": "#ffffff",
+        "count": 4
+      }
+    ]
+  },
+  "typography": {
+    "styles": [
+      {
+        "context": "button",
+        "family": "varela_roundregular",
+        "fallbacks": null,
+        "size": "16px (1.00rem)",
+        "weight": 400,
+        "lineHeight": "1.50",
+        "spacing": null,
+        "transform": null
+      }
+    ],
+    "sources": {
+      "googleFonts": [],
+      "adobeFonts": false,
+      "variableFonts": false
+    }
+  },
+  "spacing": {
+    "scaleType": "8px",
+    "commonValues": [
+      {
+        "px": "10px",
+        "rem": "0.63rem",
+        "count": 10,
+        "numericValue": 10
+      },
+      {
+        "px": "40px",
+        "rem": "2.50rem",
+        "count": 1,
+        "numericValue": 40
+      },
+      {
+        "px": "100px",
+        "rem": "6.25rem",
+        "count": 1,
+        "numericValue": 100
+      }
+    ]
+  },
+  "borderRadius": {
+    "values": [
+      {
+        "value": "10px",
+        "count": 1,
+        "elements": [
+          "div"
+        ],
+        "confidence": "low",
+        "numericValue": 10
+      },
+      {
+        "value": "10px 10px 0px 0px",
+        "count": 1,
+        "elements": [
+          "button"
+        ],
+        "confidence": "low",
+        "numericValue": 10
+      },
+      {
+        "value": "20px",
+        "count": 1,
+        "elements": [
+          "input"
+        ],
+        "confidence": "low",
+        "numericValue": 20
+      },
+      {
+        "value": "50%",
+        "count": 1,
+        "elements": [
+          "button"
+        ],
+        "confidence": "low",
+        "numericValue": 50
+      }
+    ]
+  },
+  "borders": {
+    "combinations": [
+      {
+        "width": "2px",
+        "style": "outset",
+        "color": "rgb(0, 0, 0)",
+        "count": 1,
+        "elements": [
+          "button"
+        ],
+        "confidence": "low"
+      },
+      {
+        "width": "1px",
+        "style": "solid",
+        "color": "rgb(204, 204, 204)",
+        "count": 1,
+        "elements": [
+          "input"
+        ],
+        "confidence": "low"
+      }
+    ]
+  },
+  "shadows": [
+    {
+      "shadow": "rgba(0, 0, 0, 0.1) 0px 0px 10px 0px",
+      "count": 1,
+      "confidence": "low"
+    }
+  ],
+  "components": {
+    "buttons": [
+      {
+        "states": {
+          "default": {
+            "backgroundColor": "rgb(7, 94, 84)",
+            "color": "rgb(255, 255, 255)",
+            "padding": "10px",
+            "borderRadius": "10px 10px 0px 0px",
+            "border": "2px outset rgb(0, 0, 0)",
+            "boxShadow": "none",
+            "outline": "rgb(255, 255, 255) none 3px",
+            "transform": "none",
+            "opacity": "1"
+          },
+          "hover": {
+            "backgroundColor": "rgb(18, 140, 126)"
+          },
+          "active": null,
+          "focus": {
+            "outline": "0px",
+            "boxShadow": "var(--bs-accordion-btn-focus-box-shadow)"
+          }
+        },
+        "fontWeight": "400",
+        "fontSize": "16px",
+        "classes": "chatbox-header",
+        "confidence": "high"
+      },
+      {
+        "states": {
+          "default": {
+            "backgroundColor": "rgb(7, 94, 84)",
+            "color": "rgb(255, 255, 255)",
+            "padding": "10px",
+            "borderRadius": "50%",
+            "border": "0px none rgb(255, 255, 255)",
+            "boxShadow": "none",
+            "outline": "rgb(255, 255, 255) none 3px",
+            "transform": "none",
+            "opacity": "1"
+          },
+          "hover": {
+            "backgroundColor": "rgb(18, 140, 126)"
+          },
+          "active": null,
+          "focus": {
+            "outline": "0px",
+            "boxShadow": "var(--bs-accordion-btn-focus-box-shadow)"
+          }
+        },
+        "fontWeight": "400",
+        "fontSize": "16px",
+        "classes": "",
+        "confidence": "high"
+      }
+    ],
+    "inputs": {
+      "text": [
+        {
+          "specificType": "text",
+          "states": {
+            "default": {
+              "backgroundColor": "rgb(255, 255, 255)",
+              "color": "rgb(52, 48, 45)",
+              "border": "1px solid rgb(204, 204, 204)",
+              "borderRadius": "20px",
+              "padding": "10px",
+              "boxShadow": "none",
+              "outline": "rgb(52, 48, 45) none 3px"
+            },
+            "focus": {
+              "borderColor": "rgb(134, 183, 254)",
+              "boxShadow": "0 0 0 0.25rem rgba(var(--bs-danger-rgb), 0.25)",
+              "outline": "0px"
+            }
+          }
+        }
+      ],
+      "checkbox": [],
+      "radio": [],
+      "select": []
+    },
+    "links": [],
+    "badges": {
+      "all": [],
+      "byVariant": {
+        "error": [],
+        "warning": [],
+        "success": [],
+        "info": [],
+        "neutral": []
+      }
+    }
+  },
+  "breakpoints": [
+    {
+      "px": "98px"
+    },
+    {
+      "px": "576px"
+    },
+    {
+      "px": "768px"
+    },
+    {
+      "px": "992px"
+    },
+    {
+      "px": "1200px"
+    },
+    {
+      "px": "1400px"
+    }
+  ],
+  "iconSystem": [],
+  "frameworks": []
+}

@@ -1,0 +1,28 @@
+{
+  "source": {
+    "url": "http://localhost:8080/",
+    "extractedAt": "2026-05-26T09:26:31.892Z",
+    "extractor": "dembrandt"
+  },
+  "colors": {
+    "palette": [],
+    "cssVariables": {}
+  },
+  "typography": {
+    "headingFont": "varela_roundregular",
+    "bodyFont": "varela_roundregular"
+  },
+  "spacing": {
+    "scale": [
+      "10px",
+      "40px",
+      "100px"
+    ]
+  },
+  "radius": {
+    "scale": []
+  },
+  "shadows": {
+    "scale": []
+  }
+}
