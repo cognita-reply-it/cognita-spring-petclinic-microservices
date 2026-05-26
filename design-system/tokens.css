@@ -1,5 +1,4 @@
 :root {
-  /* Source: extract-design-system http://localhost:8080/ --extract-only */
   --pc-color-brand-green: #6db33f;
   --pc-color-brand-charcoal: #34302d;
   --pc-color-nav-hover-text: #eeeeee;
@@ -15,6 +14,7 @@
   --pc-color-border-default: #dee2e6;
   --pc-color-border-subtle: #e1e1e1;
   --pc-color-border-input: #cccccc;
+  --pc-color-border-focus: #86b7fe;
 
   --pc-color-chat-header: #075e54;
   --pc-color-chat-header-hover: #128c7e;
@@ -74,8 +74,10 @@
   --pc-layout-nav-brand-height: 46px;
   --pc-layout-nav-brand-mobile-width: 148px;
   --pc-layout-nav-brand-mobile-height: 50px;
+  --pc-layout-nav-link-padding: 28px 20px;
   --pc-layout-chatbox-width: 300px;
   --pc-layout-chatbox-height: 400px;
   --pc-layout-chatbox-offset: 10px;
+  --pc-layout-chatbox-message-max-width: 80%;
   --pc-breakpoint-mobile: 768px;
 }
