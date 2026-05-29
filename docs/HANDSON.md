@@ -1,6 +1,7 @@
 # Hands-on Repo Briefing
 
 Questo documento descrive il repository usando solo evidenza da `README.md`, dai `pom.xml`, da `docker-compose.yml` e dalla struttura delle cartelle.
+Il perimetro e` volutamente operativo: serve a capire cosa avviare, quali porte aspettarsi e quali componenti sono davvero necessari nel flusso base.
 
 ## Scopo del progetto
 
