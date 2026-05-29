@@ -232,12 +232,23 @@ Punto di ingresso principale:
 
 - `http://localhost:8080/`
 
+Caratteristica chiave di questo flusso:
+
+- le porte dei servizi applicativi non sono fissate dal repository per l'avvio locale senza Docker;
+- la discovery su Eureka serve proprio a trovare i servizi che partono su porta random.
+
 ## Avvio con Docker Compose
 
 Dal `README.md` il flusso Docker prevede:
 
 1. costruire le immagini con `./mvnw clean install -P buildDocker`;
 2. avviare l'intero stack con `docker compose up` oppure `podman-compose up`.
+
+Caratteristica chiave di questo flusso:
+
+- `docker-compose.yml` pubblica porte host fisse per tutti i servizi definiti nel compose;
+- il grafico di startup usa `depends_on` con `service_healthy` per coordinare `config-server` e `discovery-server`;
+- dopo l'avvio, il gateway puo' mostrare timeout iniziali finche' Eureka non converge.
 
 Differenze pratiche rispetto all'avvio locale senza Docker:
 
