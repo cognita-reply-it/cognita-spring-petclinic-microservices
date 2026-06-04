@@ -84,7 +84,7 @@ Dal README emergono anche dipendenze funzionali e operative:
 
 ### Core
 
-Per l'uso normale del repository, il nucleo funzionale e':
+Per l'uso normale del repository, il nucleo funzionale e' una lettura operativa dei servizi che il README presenta come necessari per far partire il sistema:
 
 - `spring-petclinic-config-server`
 - `spring-petclinic-discovery-server`
