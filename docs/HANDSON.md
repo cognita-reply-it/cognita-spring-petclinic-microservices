@@ -1,190 +1,146 @@
-# Spring Petclinic Microservices - Repo Briefing
+# Spring Petclinic Microservices - Hands-on Briefing
 
-Questo documento riassume il repository in modo operativo per un hands-on Codex App, usando solo evidenze presenti in `README.md`, nei `pom.xml`, in `docker-compose.yml` e nella struttura del repository.
+## Scopo del progetto
 
-## Scopo Del Progetto
+Questo repository contiene una variante distribuita della Spring PetClinic sample application. Dal `README.md` emerge che l'obiettivo e' mostrare come dividere una sample application Spring in microservizi usando Spring Cloud, Spring AI e lo stack correlato per configurazione, discovery, resilienza, tracing e gateway.
 
-Il repository contiene la versione distribuita di Spring PetClinic, descritta nel README come una sample application separata in microservizi con Spring Cloud e Spring AI.
+## Servizi presenti
 
-L'obiettivo operativo del repo e':
-- fornire un esempio di architettura a microservizi Spring;
-- mostrare il flusso locale con servizi Java avviati singolarmente;
-- mostrare un flusso completo con immagini Docker e `docker-compose`;
-- includere componenti opzionali per osservabilita', amministrazione e GenAI.
+La struttura del repository e il `pom.xml` indicano questi moduli:
 
-## Servizi Presenti
-
-Dalla struttura del repository e dal `pom.xml` root risultano questi moduli Maven:
-
-- `spring-petclinic-admin-server`
+- `spring-petclinic-config-server`
+- `spring-petclinic-discovery-server`
+- `spring-petclinic-api-gateway`
 - `spring-petclinic-customers-service`
 - `spring-petclinic-vets-service`
 - `spring-petclinic-visits-service`
 - `spring-petclinic-genai-service`
-- `spring-petclinic-config-server`
-- `spring-petclinic-discovery-server`
-- `spring-petclinic-api-gateway`
+- `spring-petclinic-admin-server`
 
-Ruolo operativo dei servizi, come descritto nel README:
+Dal `README.md` i servizi applicativi principali sono:
 
-- `spring-petclinic-api-gateway`: gateway API e frontend legacy AngularJS.
-- `spring-petclinic-customers-service`: gestione clienti e animali.
-- `spring-petclinic-vets-service`: gestione veterinari.
-- `spring-petclinic-visits-service`: gestione visite.
-- `spring-petclinic-config-server`: configurazione centralizzata.
-- `spring-petclinic-discovery-server`: service discovery Eureka.
-- `spring-petclinic-genai-service`: chatbot / integrazione GenAI.
-- `spring-petclinic-admin-server`: server Spring Boot Admin.
+- Customers Service
+- Vets Service
+- Visits Service
+- GenAI Service
+- API Gateway
+- Config Server
+- Discovery Server
 
-## Porte Esposte
+## Porte esposte
 
-Le porte osservabili nel README e in `docker-compose.yml` sono:
+### Avvio locale senza Docker
 
-- `8080`: API Gateway / frontend.
-- `8081`: `customers-service` in Docker Compose.
-- `8082`: `visits-service` in Docker Compose.
-- `8083`: `vets-service` in Docker Compose.
-- `8084`: `genai-service` in Docker Compose.
-- `8761`: Discovery Server.
-- `8888`: Config Server.
-- `9090`: Admin Server.
-- `9411`: Tracing Server / Zipkin.
-- `3030`: Grafana.
-- `9091`: Prometheus.
+Dal `README.md`:
 
-Nel README e' indicato che, nel flusso locale senza Docker, `Customers`, `Vets`, `Visits` e `GenAI` possono partire su porta casuale e vanno controllati nel dashboard Eureka.
+- Discovery Server: `http://localhost:8761`
+- Config Server: `http://localhost:8888`
+- API Gateway: `http://localhost:8080`
+- Tracing Server (Zipkin): `http://localhost:9411/zipkin/`
+- Admin Server: `http://localhost:9090`
+- Grafana: `http://localhost:3030`
+- Prometheus: `http://localhost:9091`
+- Customers, Vets, Visits e GenAI Services: porte casuali, da verificare in Eureka Dashboard
 
-## Dipendenze Principali
+### Avvio con Docker Compose
 
-Dal README e dal `pom.xml` root emergono queste dipendenze tecniche principali:
+Il file `docker-compose.yml` espone queste porte host:
 
-- Spring Boot `4.0.1` come parent del build.
-- Java `17`.
-- Spring Cloud `2025.1.0`.
-- Spring Cloud Gateway.
-- Spring Cloud Circuit Breaker.
-- Spring Cloud Config.
-- Spring Cloud Netflix Eureka.
-- Micrometer Tracing.
-- Resilience4j.
-- OpenTelemetry.
-- Spring AI.
-- Chaos Monkey Spring Boot.
-- Jolokia.
-- `datasource-micrometer-spring-boot`.
+- Config Server: `8888:8888`
+- Discovery Server: `8761:8761`
+- Customers Service: `8081:8081`
+- Visits Service: `8082:8082`
+- Vets Service: `8083:8083`
+- GenAI Service: `8084:8084`
+- API Gateway: `8080:8080`
+- Tracing Server: `9411:9411`
+- Admin Server: `9090:9090`
+- Grafana: `3030:3000`
+- Prometheus: `9091:9090`
 
-Dal README emergono anche dipendenze funzionali e operative:
+## Dipendenze principali
 
-- HSQLDB come database in-memory di default.
-- MySQL come alternativa esplicita per il profilo `mysql`.
-- Docker / Podman per il flusso containerizzato.
-- Zipkin, Grafana, Prometheus e Spring Boot Admin come componenti di supporto.
+Dal `README.md` e dal `pom.xml` si ricavano le dipendenze e le piattaforme principali:
 
-## Core E Cosa E' Opzionale
+- Spring Boot 4.0.1
+- Java 17
+- Spring Cloud 2025.1.0
+- Spring Cloud Gateway
+- Spring Cloud Config
+- Eureka / Spring Cloud Netflix per discovery
+- Spring Cloud Circuit Breaker
+- Resilience4j
+- Micrometer Tracing
+- OpenTelemetry
+- Spring AI
+- Zipkin per tracing
+- Spring Boot Admin
+- Grafana e Prometheus per metriche
+- MySQL JDBC driver supportato dal `pom.xml` per il profilo MySQL
+- HSQLDB in-memory come configurazione predefinita, secondo il `README.md`
+
+Per il modulo GenAI, il `README.md` indica supporto per:
+
+- OpenAI come provider predefinito
+- Azure OpenAI come alternativa
+
+## Cosa e' core e cosa e' opzionale
 
 ### Core
 
-Per l'uso normale del repository, il nucleo funzionale e' una lettura operativa dei servizi che il README presenta come necessari per far partire il sistema:
+Il flusso minimo descritto dal repository richiede:
 
-- `spring-petclinic-config-server`
-- `spring-petclinic-discovery-server`
-- `spring-petclinic-api-gateway`
-- `spring-petclinic-customers-service`
-- `spring-petclinic-vets-service`
-- `spring-petclinic-visits-service`
+- Config Server
+- Discovery Server
+- API Gateway
+- Customers Service
+- Vets Service
+- Visits Service
 
-Questi sono i servizi necessari per far funzionare la PetClinic distribuita nel flusso Java locale descritto nel README.
+Questi sono i servizi che il `README.md` indica come prerequisiti per l'avvio degli altri servizi e come base dell'applicazione distribuita.
 
 ### Opzionale
 
-Sono opzionali, salvo che il task richieda esplicitamente il contrario:
+Dal `README.md` risultano opzionali o dipendenti da esigenze specifiche:
 
-- `spring-petclinic-admin-server`
-- `spring-petclinic-genai-service`
-- `tracing-server` / Zipkin
-- `grafana-server`
-- `prometheus-server`
-- supporto Docker / Podman come modalita' di esecuzione
+- GenAI Service
+- Tracing Server
+- Admin Server
+- Grafana
+- Prometheus
+- MySQL profile e database MySQL
+- Avvio tramite Docker / Docker Compose
+- Avvio con Podman al posto di Docker
 
-Nel README il tracing, l'admin server, Grafana e Prometheus sono indicati come opzionali nel flusso locale senza Docker.
+## Avvio locale senza Docker
 
-Per la parte GenAI, il README indica che il servizio supporta OpenAI o Azure OpenAI e richiede credenziali di provider; quindi, per un hands-on generico, va trattato come componente opzionale.
+Il `README.md` indica che ogni microservizio e' una Spring Boot application e puo' essere avviato localmente con l'IDE oppure con `../mvnw spring-boot:run`.
 
-## Avvio Locale Senza Docker
+Punti operativi supportati dal repository:
 
-Il README descrive questo flusso come avvio diretto dei singoli microservizi:
+- prima si avviano Config Server e Discovery Server
+- poi si avviano Customers, Vets, Visits e API Gateway
+- Tracing Server, Admin Server, Grafana e Prometheus sono opzionali
+- alcuni servizi applicativi non usano porte fisse in locale e vanno controllati da Eureka
 
-- ogni microservizio e' una Spring Boot application;
-- si puo' usare l'IDE oppure `../mvnw spring-boot:run`;
-- `config-server` e `discovery-server` vanno avviati prima degli altri servizi;
-- `customers-service`, `vets-service`, `visits-service` e `api-gateway` dipendono dal supporto di configurazione e discovery;
-- tracing, admin, Grafana e Prometheus sono opzionali;
-- i servizi business possono partire su porta casuale e vengono registrati in Eureka.
+## Avvio con Docker Compose
 
-Il README indica anche che il `config-server` puo' usare un repository Git locale tramite profilo `native` e variabile `GIT_REPO`.
+Il `README.md` e `docker-compose.yml` mostrano un flusso diverso:
 
-## Avvio Con Docker Compose
+- prima si costruiscono le immagini con `./mvnw clean install -P buildDocker`
+- poi si avvia tutto con `docker compose up` oppure `podman-compose up`
+- il compose definisce dipendenze di startup tramite `depends_on` e healthcheck
+- le porte sono fisse sul lato host e corrispondono ai servizi esposti nel file compose
+- il `README.md` segnala che l'API Gateway puo' richiedere un po' di tempo prima di sincronizzarsi con il service registry
 
-Il flusso Docker prevede due passi:
+## Differenza operativa tra i due avvii
 
-1. costruzione delle immagini con Maven e profilo `buildDocker`;
-2. avvio dell'infrastruttura con `docker compose up` oppure `podman-compose up`.
+- Senza Docker: ogni servizio e' avviato come processo Spring Boot separato, con alcune porte casuali e supervisione manuale tramite Eureka.
+- Con Docker Compose: il repository fornisce un avvio coordinato dell'infrastruttura completa, con immagini costruite in precedenza e porte host stabili.
 
-Nel README e nel `docker-compose.yml` si vede che questo flusso mette insieme:
+## Note pratiche
 
-- config server;
-- discovery server;
-- customers service;
-- visits service;
-- vets service;
-- genai service;
-- api gateway;
-- tracing server;
-- admin server;
-- Grafana;
-- Prometheus.
-
-Nel file `docker-compose.yml` sono presenti `depends_on` e healthcheck per coordinare l'ordine di startup. Questo significa che il flusso Docker e' pensato per un avvio completo e piu' automatizzato rispetto all'avvio locale manuale.
-
-Nota operativa dal README:
-- su macOS o Windows serve memoria sufficiente per la VM Docker;
-- il gateway puo' mostrare timeout iniziali mentre i servizi si sincronizzano con Eureka;
-- il README suggerisce di controllare la disponibilita' dei servizi dal dashboard Eureka.
-
-## Differenza Tra I Due Flussi
-
-### Senza Docker
-
-- si avviano i servizi come applicazioni Spring Boot separate;
-- serve avviare prima i servizi di supporto;
-- i servizi business possono usare porte casuali;
-- alcune componenti restano opzionali;
-- e' il flusso piu' adatto per lavorare sul codice e sui test locali.
-
-### Con Docker Compose
-
-- si usano immagini container gia' costruite;
-- l'avvio e' guidato da compose e dai healthcheck;
-- le porte sono fissate e dichiarate in `docker-compose.yml`;
-- il flusso include anche componenti opzionali come tracing, admin, Grafana e Prometheus;
-- e' il flusso piu' adatto per una dimostrazione full-stack o per verificare l'infrastruttura completa.
-
-## Nota Su Database E Profili
-
-Dal README:
-
-- il comportamento di default usa HSQLDB in-memory con dati caricati all'avvio;
-- MySQL e' un'alternativa esplicita;
-- per usare MySQL, il README indica il profilo `mysql` sui servizi `visits-service`, `customers-service` e `vets-service`.
-
-Per un hands-on base, il default HSQLDB e' il punto di partenza piu' semplice.
-
-## Lettura Rapida Per Chi Entra Nel Repo
-
-Se devi iniziare a usare il repository:
-
-1. considera `api-gateway` come punto di ingresso del frontend;
-2. considera `config-server` e `discovery-server` come prerequisiti del flusso Java locale;
-3. considera `customers`, `vets` e `visits` come core domain services;
-4. tratta `genai`, `admin`, `tracing`, `grafana` e `prometheus` come estensioni opzionali;
-5. scegli l'avvio senza Docker se stai lavorando sul codice; scegli Docker Compose se ti serve una dimostrazione integrata dell'intero stack.
+- La configurazione predefinita usa HSQLDB in-memory.
+- Il supporto MySQL esiste, ma richiede il profilo `mysql` sui servizi indicati nel `README.md`.
+- Il modulo GenAI richiede una scelta tra OpenAI e Azure OpenAI, con credenziali fornite via variabili d'ambiente.
+- Questo documento descrive solo quanto e' verificabile nei file richiesti dal ticket.
