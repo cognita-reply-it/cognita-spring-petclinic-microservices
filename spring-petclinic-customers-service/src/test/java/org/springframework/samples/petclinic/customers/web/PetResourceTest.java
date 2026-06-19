@@ -75,6 +75,7 @@ class PetResourceTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                     {
+                      "id": 0,
                       "name": "Basil",
                       "typeId": 1
                     }
