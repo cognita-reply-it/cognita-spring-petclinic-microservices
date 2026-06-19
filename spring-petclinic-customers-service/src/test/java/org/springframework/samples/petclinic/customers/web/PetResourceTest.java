@@ -75,17 +75,15 @@ class PetResourceTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                     {
-                      "birthDate": "2020-01-01",
-                      "name": "",
+                      "name": "Basil",
                       "typeId": 1
                     }
                     """))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
             .andExpect(jsonPath("$.message").value("Validation failed"))
-            .andExpect(jsonPath("$.errors[0].field").value("name"))
-            .andExpect(jsonPath("$.errors[0].message").value("Name is required"))
-            .andExpect(jsonPath("$.errors[0].rejectedValue").value(""));
+            .andExpect(jsonPath("$.errors[0].field").value("birthDate"))
+            .andExpect(jsonPath("$.errors[0].message").value("Birth date is required"));
     }
 
     private Pet setupPet() {
