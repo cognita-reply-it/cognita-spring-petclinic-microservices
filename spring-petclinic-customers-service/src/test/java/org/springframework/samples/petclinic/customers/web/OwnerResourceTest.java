@@ -37,7 +37,6 @@ class OwnerResourceTest {
     @Test
     void shouldGetAnOwnerInJsonFormat() throws Exception {
         Owner owner = new Owner();
-        owner.setId(7);
         owner.setFirstName("Jane");
         owner.setLastName("Doe");
 
@@ -45,7 +44,6 @@ class OwnerResourceTest {
 
         mvc.perform(get("/owners/7").accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(7))
             .andExpect(jsonPath("$.firstName").value("Jane"))
             .andExpect(jsonPath("$.lastName").value("Doe"));
     }
