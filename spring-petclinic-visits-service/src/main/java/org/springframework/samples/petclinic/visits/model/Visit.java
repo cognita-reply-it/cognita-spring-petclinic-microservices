@@ -17,6 +17,8 @@ package org.springframework.samples.petclinic.visits.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.util.Date;
@@ -39,8 +41,10 @@ public class Visit {
     @Column(name = "visit_date")
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(pattern = "yyyy-MM-dd")
+    @NotNull(message = "Date is required")
     private Date date = new Date();
 
+    @NotBlank(message = "Description is required")
     @Size(max = 8192)
     @Column(name = "description")
     private String description;

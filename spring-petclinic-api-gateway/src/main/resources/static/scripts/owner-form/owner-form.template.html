@@ -1,39 +1,46 @@
 <h2>Owner</h2>
-<form ng-submit="$ctrl.submitOwnerForm()" style="max-width: 25em;">
-    <div class="form-group">
+<form name="ownerForm" ng-submit="$ctrl.submitOwnerForm(ownerForm)" style="max-width: 25em;" novalidate>
+    <div class="alert alert-danger" ng-if="$ctrl.formErrorMessage">{{$ctrl.formErrorMessage}}</div>
+
+    <div class="form-group" ng-class="{'has-error': $ctrl.formErrors.firstName || (ownerForm.firstName.$error.required && ownerForm.$submitted)}">
         <label>First name</label>
         <input class="form-control" ng-model="$ctrl.owner.firstName" name="firstName" required/>
-        <span ng-show="ownerForm.firstName.$error.required" class="help-block">First name is required.</span>
+        <span ng-show="ownerForm.firstName.$error.required && ownerForm.$submitted" class="help-block">First name is required.</span>
+        <span ng-show="$ctrl.formErrors.firstName" class="help-block">{{$ctrl.formErrors.firstName}}</span>
     </div>
 
-    <div class="form-group">
+    <div class="form-group" ng-class="{'has-error': $ctrl.formErrors.lastName || (ownerForm.lastName.$error.required && ownerForm.$submitted)}">
         <label>Last name</label>
         <input class="form-control" ng-model="$ctrl.owner.lastName" name="lastName" required/>
-        <span ng-show="ownerForm.lastName.$error.required" class="help-block">Last name is required.</span>
+        <span ng-show="ownerForm.lastName.$error.required && ownerForm.$submitted" class="help-block">Last name is required.</span>
+        <span ng-show="$ctrl.formErrors.lastName" class="help-block">{{$ctrl.formErrors.lastName}}</span>
     </div>
 
 
-    <div class="form-group">
+    <div class="form-group" ng-class="{'has-error': $ctrl.formErrors.address || (ownerForm.address.$error.required && ownerForm.$submitted)}">
         <label>Address</label>
         <input class="form-control" ng-model="$ctrl.owner.address" name="address" required/>
-        <span ng-show="ownerForm.address.$error.required" class="help-block">Address is required.</span>
+        <span ng-show="ownerForm.address.$error.required && ownerForm.$submitted" class="help-block">Address is required.</span>
+        <span ng-show="$ctrl.formErrors.address" class="help-block">{{$ctrl.formErrors.address}}</span>
     </div>
 
-    <div class="form-group">
+    <div class="form-group" ng-class="{'has-error': $ctrl.formErrors.city || (ownerForm.city.$error.required && ownerForm.$submitted)}">
         <label>City</label>
         <input class="form-control" ng-model="$ctrl.owner.city" name="city" required/>
-        <span ng-show="ownerForm.city.$error.required" class="help-block">City is required.</span>
+        <span ng-show="ownerForm.city.$error.required && ownerForm.$submitted" class="help-block">City is required.</span>
+        <span ng-show="$ctrl.formErrors.city" class="help-block">{{$ctrl.formErrors.city}}</span>
     </div>
     
-    <div class="form-group">
+    <div class="form-group" ng-class="{'has-error': $ctrl.formErrors.telephone || ((ownerForm.telephone.$error.required || ownerForm.telephone.$error.pattern) && ownerForm.$submitted)}">
         <label>Telephone</label>
         <input class="form-control" ng-model="$ctrl.owner.telephone" pattern="[0-9]{12}" placeholder="905554443322"
                name="telephone" maxlength="12" required/>
-        <span ng-show="ownerForm.telephone.$error.required" class="help-block">Telephone is required.</span>
+        <span ng-show="ownerForm.telephone.$error.required && ownerForm.$submitted" class="help-block">Telephone is required.</span>
+        <span ng-show="ownerForm.telephone.$error.pattern && ownerForm.$submitted" class="help-block">Telephone must contain exactly 12 digits.</span>
+        <span ng-show="$ctrl.formErrors.telephone" class="help-block">{{$ctrl.formErrors.telephone}}</span>
     </div>
     
     <div class="form-group">
         <button class="btn btn-primary" type="submit">Submit</button>
     </div>
 </form>
-

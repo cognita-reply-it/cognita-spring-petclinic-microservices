@@ -1,9 +1,10 @@
 'use strict';
 
 angular.module('petForm')
-    .controller('PetFormController', ['$http', '$state', '$stateParams', function ($http, $state, $stateParams) {
+    .controller('PetFormController', ['$http', '$state', '$stateParams', 'FormErrorHandler', function ($http, $state, $stateParams, FormErrorHandler) {
         var self = this;
         var ownerId = $stateParams.ownerId || 0;
+        FormErrorHandler.reset(self);
 
         $http.get('api/customer/petTypes').then(function (resp) {
             self.types = resp.data;
@@ -28,7 +29,14 @@ angular.module('petForm')
             }
         });
 
-        self.submit = function () {
+        self.submit = function (form) {
+            FormErrorHandler.reset(self);
+
+            if (form && form.$invalid) {
+                self.formErrorMessage = 'Please fix the highlighted fields.';
+                return;
+            }
+
             var id = self.pet.id || 0;
 
             var data = {
@@ -47,6 +55,8 @@ angular.module('petForm')
 
             req.then(function () {
                 $state.go('ownerDetails', {ownerId: ownerId});
+            }).catch(function (response) {
+                FormErrorHandler.apply(self, response);
             });
         };
     }]);

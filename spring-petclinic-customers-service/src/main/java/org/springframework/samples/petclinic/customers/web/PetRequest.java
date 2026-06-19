@@ -16,7 +16,9 @@
 package org.springframework.samples.petclinic.customers.web;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.Date;
 
@@ -25,9 +27,11 @@ import java.util.Date;
  */
 record PetRequest(int id,
                   @JsonFormat(pattern = "yyyy-MM-dd")
+                  @NotNull(message = "Birth date is required")
                   Date birthDate,
-                  @Size(min = 1)
+                  @NotBlank(message = "Name is required")
                   String name,
+                  @Min(value = 1, message = "Pet type is required")
                   int typeId
 ) {
 

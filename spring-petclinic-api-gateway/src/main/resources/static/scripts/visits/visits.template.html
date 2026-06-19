@@ -1,15 +1,20 @@
 <h2>Visits</h2>
 
-<form ng-submit="$ctrl.submit()">
+<form name="visitForm" ng-submit="$ctrl.submit(visitForm)" novalidate>
+    <div class="alert alert-danger" ng-if="$ctrl.formErrorMessage">{{$ctrl.formErrorMessage}}</div>
 
-    <div class="form-group">
+    <div class="form-group" ng-class="{'has-error': $ctrl.formErrors.date || (visitForm.date.$error.required && visitForm.$submitted)}">
         <label>Date</label>
-        <input type="date" class="form-control" ng-model='$ctrl.date'/>
+        <input type="date" name="date" class="form-control" ng-model='$ctrl.date' required/>
+        <span ng-show="visitForm.date.$error.required && visitForm.$submitted" class="help-block">Date is required.</span>
+        <span ng-show="$ctrl.formErrors.date" class="help-block">{{$ctrl.formErrors.date}}</span>
     </div>
 
-    <div class="form-group">
+    <div class="form-group" ng-class="{'has-error': $ctrl.formErrors.description || (visitForm.description.$error.required && visitForm.$submitted)}">
         <label>Description</label>
-        <textarea class="form-control" ng-model="$ctrl.desc" style="resize:vertical;" required></textarea>
+        <textarea class="form-control" name="description" ng-model="$ctrl.desc" style="resize:vertical;" required></textarea>
+        <span ng-show="visitForm.description.$error.required && visitForm.$submitted" class="help-block">Description is required.</span>
+        <span ng-show="$ctrl.formErrors.description" class="help-block">{{$ctrl.formErrors.description}}</span>
     </div>
 
     <div class="form-group">

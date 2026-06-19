@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.samples.petclinic.customers.model.Owner;
 import org.springframework.samples.petclinic.customers.model.OwnerRepository;
@@ -18,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -26,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Maciej Szarlinski
  */
 @WebMvcTest(PetResource.class)
+@Import(ApiExceptionHandler.class)
 @ActiveProfiles("test")
 class PetResourceTest {
 
@@ -52,6 +55,37 @@ class PetResourceTest {
             .andExpect(jsonPath("$.id").value(2))
             .andExpect(jsonPath("$.name").value("Basil"))
             .andExpect(jsonPath("$.type.id").value(6));
+    }
+
+    @Test
+    void shouldReturnStableNotFoundContract() throws Exception {
+        given(petRepository.findById(99)).willReturn(Optional.empty());
+
+        mvc.perform(get("/owners/2/pets/99").accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.code").value("NOT_FOUND"))
+            .andExpect(jsonPath("$.status").value(404))
+            .andExpect(jsonPath("$.message").value("Pet 99 not found"))
+            .andExpect(jsonPath("$.path").value("/owners/2/pets/99"));
+    }
+
+    @Test
+    void shouldReturnReadableValidationErrors() throws Exception {
+        mvc.perform(post("/owners/2/pets")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                    {
+                      "birthDate": "2020-01-01",
+                      "name": "",
+                      "typeId": 1
+                    }
+                    """))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+            .andExpect(jsonPath("$.message").value("Validation failed"))
+            .andExpect(jsonPath("$.errors[0].field").value("name"))
+            .andExpect(jsonPath("$.errors[0].message").value("Name is required"))
+            .andExpect(jsonPath("$.errors[0].rejectedValue").value(""));
     }
 
     private Pet setupPet() {
