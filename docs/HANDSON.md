@@ -1,6 +1,6 @@
 # Spring Petclinic Microservices - Hands-on Briefing
 
-Questo repository contiene la versione microservices della Spring Petclinic sample application. L'obiettivo dichiarato nel `README.md` e' dimostrare come suddividere l'applicazione Petclinic in piu' servizi Spring Boot usando Spring Cloud.
+Questo repository contiene la versione microservices della Spring Petclinic sample application. Dal `README.md` emerge che l'obiettivo e' mostrare come suddividere Petclinic in piu' servizi Spring Boot con Spring Cloud.
 
 ## Scopo del progetto
 
