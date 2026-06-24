@@ -142,3 +142,4 @@ Il flusso descritto dal `README.md` e dal `docker-compose.yml` e' diverso:
 - Il supporto MySQL esiste, ma richiede il profilo `mysql` sui servizi indicati nel `README.md`.
 - Il modulo GenAI richiede la scelta tra OpenAI e Azure OpenAI, con credenziali passate via variabili d'ambiente.
 - Questo documento riporta solo evidenza verificabile nei file richiesti dal ticket.
+- Fonti usate: `README.md`, `pom.xml`, `docker-compose.yml` e la struttura dei moduli del repository.
