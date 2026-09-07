@@ -25,5 +25,7 @@ jobs:
         java-version: ${{matrix.java}}
         distribution: 'adopt'
         cache: maven
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
+    - name: Check agent documentation
+      run: python3 scripts/check-agent-docs.py
+    - name: Build with Maven wrapper
+      run: ./mvnw -B package --file pom.xml
