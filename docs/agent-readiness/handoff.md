@@ -29,3 +29,11 @@ Modified root README (corrected orientation/commands), CONTRIBUTING and `.github
 ## Remaining boundaries and rollback
 
 The matrix resolves G01–G07; G08–G10/G13 are examined and retained; G11–G12 are explicit environment/provider limitations. This means documentation migration is reviewable, not that every deployment path is certified. No data/schema migration or dependency change requires rollback; revert the migration commit(s) through ordinary reviewed Git revert if needed, preserving later changes. Do not reset data or execute the destructive legacy launcher to undo documentation.
+
+## Delivery snapshot — 2026-09-07
+
+Implementation commit: `96cd8675e3dd59e60036536191567d3359e3a59e`, pushed to `origin/codex/cog-172-agent-ready`. [Draft PR #29](https://github.com/cognita-reply-it/cognita-spring-petclinic-microservices/pull/29) is open against this fork's `main`, labeled `maestro`, and attached to [COG-172](https://linear.app/cognita-reply/issue/COG-172/migra-il-repository-in-un-repo-agent-like). This handoff update is a subsequent documentation commit; use `git log` for the current delivery HEAD.
+
+First PR poll: build (17) and triage-pr in progress; stale-incomplete job skipped; no comments/reviews visible. These are observed pending checks, not a green CI claim. Final poll and exact final commit/state are recorded in the single Linear `## Codex Workpad` to avoid self-referential commits. Target handoff state is Human Review; do not implement further work unless review feedback requires rework, and do not mark Done before merge.
+
+Local acceptance: nine Java tests pass, offline documentation/structure/env checks pass, independent technical findings are closed. Remaining blocker brief: sustained multi-service HTTP validation requires more than this worker's observed 2 GiB capacity; Docker/MySQL/provider/browser/production paths remain unverified. All smoke-owned JVMs were confirmed stopped. No application behavior or production changes were made.
