@@ -1,5 +1,7 @@
 # Migration plan and ownership
 
+Historical COG-172 record, retained for provenance. For the current COG-173 inventory, ownership, gaps and observed checks, use the [current migration record](cog-173.md). Historical results do not establish current runtime health.
+
 Coordinator owns AGENTS.md, README.md, CONTRIBUTING.md, .github/PULL_REQUEST_TEMPLATE.md and docs/agent-readiness/{README,inventory,plan,validation,handoff}.md. All other writes require assignment. No application source, dependency, data, deployment or role configuration changes are planned.
 
 After whole-repository inventory, three specialist work threads plus one independent reviewer are assigned below. All may read the whole selected checkout and read KG context; all must read local instructions. No thread may revert another writer, commit, push, change Linear, or write outside its exclusive list. Runtime logs go under /opt/project/logs/cog-172. Shared interfaces: relative links from this directory; English durable docs; exact commands with observed/unexecuted distinction; existing versions retained. Escalate cross-owned fixes to coordinator.

@@ -1,5 +1,7 @@
 # COG-172 validation evidence
 
+Historical COG-172 record, retained for provenance. For the current COG-173 inventory, ownership, gaps and observed checks, use the [current migration record](cog-173.md). Historical results do not establish current runtime health.
+
 Coordinator-owned execution ledger, 2026-09-07. Commands run in `/opt/project/workspaces/COG-172`, Linux aarch64, unless stated otherwise. Baseline source HEAD `f3b392c92580b740f4bafd0364b326e0bd1774f0`; application source/POMs are unchanged during this migration. Runtime logs stay outside Git in `/opt/project/logs/cog-172`; sanitized observations below are the durable evidence.
 
 | Command / capability | Environment | Observed result |
