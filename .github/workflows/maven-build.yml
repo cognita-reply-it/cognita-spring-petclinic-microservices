@@ -26,6 +26,8 @@ jobs:
         distribution: 'adopt'
         cache: maven
     - name: Check agent documentation
-      run: python3 scripts/check-agent-docs.py
+      run: |
+        python3 scripts/test-check-agent-docs.py
+        python3 scripts/check-agent-docs.py
     - name: Build with Maven wrapper
       run: ./mvnw -B package --file pom.xml

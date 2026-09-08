@@ -1,3 +1,7 @@
+# Current handoff
+
+[COG-174 inventory, execution and handoff](cog-174.md) is the current migration record. Read its final state and the live issue/workpad before resuming. The COG-172 snapshot below is historical and does not describe COG-174 delivery.
+
 # COG-172 handoff
 
 ## Objective and current state
