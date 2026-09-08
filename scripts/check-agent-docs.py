@@ -6,6 +6,7 @@ required entrypoints, Maven module mentions and environment-name documentation.
 Does not validate anchors, external URLs, HTML, code snippets or prose semantics.
 """
 from pathlib import Path
+import os
 import re
 import sys
 from urllib.parse import unquote, urlsplit
@@ -18,6 +19,20 @@ REQUIRED += [DOCS / (name + ".md") for name in (
     "README", "inventory", "plan", "architecture", "setup", "operations", "checks", "validation", "handoff", "review")]
 LINK = re.compile(r'\]\(\s*(<[^>]+>|[^\s)]+)(?:\s+"[^"]*")?\s*\)')
 REFERENCE = re.compile(r'^\s{0,3}\[[^\]]+\]:\s*(<[^>]+>|\S+)')
+
+
+def instruction_files(root):
+    """Discover source instructions without traversing build/dependency copies."""
+    for directory, children, filenames in os.walk(root):
+        children[:] = [name for name in children if name not in {
+            ".git", "target", "generated", "node_modules", ".venv", "__pycache__"}]
+        folder = Path(directory).relative_to(root)
+        for name in filenames:
+            path = folder / name
+            if name == "AGENTS.md" or (
+                Path(".codex/agents") in path.parents and path.suffix in {".md", ".toml"}
+            ):
+                yield path
 
 
 def destinations(markdown):
@@ -58,8 +73,9 @@ def check(root):
     for path in REQUIRED:
         if not (root / path).is_file():
             errors.append(f"{path}: required file missing")
-    files = [Path("AGENTS.md"), Path("README.md"), Path("CONTRIBUTING.md")]
-    files += sorted(path.relative_to(root) for path in (root / DOCS).rglob("*.md"))
+    files = sorted(set(instruction_files(root)) | {
+        Path("README.md"), Path("CONTRIBUTING.md")
+    } | {path.relative_to(root) for path in (root / DOCS).rglob("*.md")})
     for source in files:
         if not (root / source).is_file():
             continue
@@ -94,4 +110,4 @@ if __name__ == "__main__":
         print("Agent documentation check FAILED:")
         print("\n".join(problems))
         sys.exit(1)
-    print(f"Agent documentation check passed: {file_count} Markdown files, {module_count} Maven modules.")
+    print(f"Agent documentation check passed: {file_count} documentation/instruction files, {module_count} Maven modules.")

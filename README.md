@@ -163,7 +163,7 @@ with the `mysql` Spring profile. Add the `--spring.profiles.active=mysql` as pro
 
 By default, at startup, database schema will be created and data will be populated.
 You may also manually create the PetClinic database and data by executing the `"db/mysql/{schema,data}.sql"` scripts of each 3 microservices. 
-Before connecting a persistent database, review the external [Configuration repository] at a recorded revision and disable SQL initialization with the version-appropriate `spring.sql.init.mode=never`. The bundled schema scripts drop tables; do not run them against existing user data.
+Before connecting a persistent database, review the external [Configuration repository] at a recorded revision and disable SQL initialization with the version-appropriate `spring.sql.init.mode=never`. The HSQLDB schema scripts drop tables. The MySQL scripts select the fixed `petclinic` database and create tables if absent; the associated seed scripts write demo records. Do not run either setup against existing user data.
 
 If you are running the microservices with Docker, you have to add the `mysql` profile into the [Dockerfile](docker/Dockerfile):
 ```
