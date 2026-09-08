@@ -2,12 +2,13 @@
 """Offline guard for agent documentation. Python 3 standard library only.
 
 Checks inline Markdown links and reference definitions outside fenced code,
-required entrypoints, Maven module mentions and environment-name documentation.
+required entrypoints, Maven module mentions and explicit environment placeholders.
 Does not validate anchors, external URLs, HTML, code snippets or prose semantics.
 """
 from pathlib import Path
 import re
 import sys
+import subprocess
 from urllib.parse import unquote, urlsplit
 import xml.etree.ElementTree as ET
 
@@ -53,13 +54,41 @@ def local_error(root, source, target):
     return None
 
 
+def repository_files(root):
+    """Include tracked and new nonignored source; never walk build/runtime trees."""
+    result = subprocess.run(
+        ["git", "-C", str(root), "ls-files", "--cached", "--others",
+         "--exclude-standard", "-z"], capture_output=True, check=True)
+    return sorted({Path(name) for name in result.stdout.decode().split("\0")
+                   if name and Path(name).name != "WORKFLOW.md"
+                   and not {"target", "generated", ".git"}.intersection(Path(name).parts)})
+
+
+def environment_placeholders(root, files):
+    """Read explicit uppercase placeholders in application config and Compose only."""
+    names = set()
+    for source in files:
+        is_application = ("src/main/resources" in source.as_posix()
+                          and source.name.startswith("application")
+                          and source.suffix in {".yml", ".yaml", ".properties"})
+        if not is_application and source != Path("docker-compose.yml"):
+            continue
+        if not (root / source).is_file():
+            continue
+        # Do not interpret commented example placeholders as active configuration.
+        content = "\n".join(line for line in (root / source).read_text().splitlines()
+                            if not line.lstrip().startswith("#"))
+        names.update(re.findall(r"\$\{([A-Z][A-Z0-9_]*)(?=[:}])", content))
+    return names
+
+
 def check(root):
     errors = []
     for path in REQUIRED:
         if not (root / path).is_file():
             errors.append(f"{path}: required file missing")
-    files = [Path("AGENTS.md"), Path("README.md"), Path("CONTRIBUTING.md")]
-    files += sorted(path.relative_to(root) for path in (root / DOCS).rglob("*.md"))
+    sources = repository_files(root)
+    files = [path for path in sources if path.suffix.lower() == ".md"]
     for source in files:
         if not (root / source).is_file():
             continue
@@ -80,6 +109,11 @@ def check(root):
     if template.is_file() and setup.is_file():
         names = re.findall(r"^\s*(?:export\s+)?([A-Z][A-Z0-9_]*)=", template.read_text(), re.MULTILINE)
         content = setup.read_text()
+        expected = environment_placeholders(root, sources)
+        for name in sorted(set(names) - expected):
+            errors.append(f".env.example: variable has no application/Compose placeholder: {name}")
+        for name in sorted(expected - set(names)):
+            errors.append(f".env.example: source placeholder missing from template: {name}")
         for name in sorted(set(names)):
             if names.count(name) > 1:
                 errors.append(f".env.example: duplicate variable: {name}")
@@ -89,7 +123,11 @@ def check(root):
 
 
 if __name__ == "__main__":
-    problems, file_count, module_count = check(ROOT)
+    try:
+        problems, file_count, module_count = check(ROOT)
+    except (OSError, subprocess.CalledProcessError, ET.ParseError) as error:
+        print(f"Agent documentation check could not run: {type(error).__name__}")
+        sys.exit(1)
     if problems:
         print("Agent documentation check FAILED:")
         print("\n".join(problems))

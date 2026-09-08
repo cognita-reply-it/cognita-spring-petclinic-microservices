@@ -1,6 +1,6 @@
 # Coding agent contract
 
-Scope: this repository and all descendants; read any deeper AGENTS.md before editing its subtree. Start with [README](README.md) and the [agent-readiness index](docs/agent-readiness/README.md). Read WORKFLOW.md, BACKLOG.md, DESIGN.md and INIT_PROMPT.md when provided in your checkout. WORKFLOW.md is injected by Maestro here, not a tracked application file; it owns tracker/delivery lifecycle. Do not copy runtime credentials or generated workflow configuration into source control.
+Scope: this repository and all descendants; read any deeper AGENTS.md before editing its subtree. Start with [README](README.md) and the [agent-readiness index](docs/agent-readiness/README.md). Use the versioned [task prompt](docs/agent-readiness/task-prompt.md) to frame a bounded change and its handoff. Read WORKFLOW.md, BACKLOG.md, DESIGN.md and INIT_PROMPT.md when provided in your checkout. WORKFLOW.md is injected by Maestro here, not a tracked application file; it owns tracker/delivery lifecycle. Do not copy runtime credentials or generated workflow configuration into source control.
 
 ## Source authority and orientation
 

@@ -25,6 +25,8 @@ jobs:
         java-version: ${{matrix.java}}
         distribution: 'adopt'
         cache: maven
+    - name: Test documentation guard
+      run: python3 -B -m unittest discover -s scripts/tests -v
     - name: Check agent documentation
       run: python3 scripts/check-agent-docs.py
     - name: Build with Maven wrapper

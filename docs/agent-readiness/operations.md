@@ -1,6 +1,6 @@
 # Operations, diagnosis and recovery
 
-Owner: runtime thread for COG-172. This is a local demonstration runbook, not a production deployment procedure. Start with [setup](setup.md); use [checks](checks.md) for gates and [validation](validation.md) for actual observed outcomes. No deployed environment or provider account was exercised by this documentation thread.
+Owner: runtime thread; re-audited for COG-173. This is a local demonstration runbook, not a production deployment procedure. Start with [setup](setup.md); use [checks](checks.md) for gates and [COG-173](cog-173.md) for current observed outcomes and [COG-172 validation](validation.md) for historical results. No deployed environment or provider account was exercised by this documentation thread. Current execution evidence is tracked in [COG-173](cog-173.md); explicitly named COG-172 observations below are historical.
 
 ## Readiness and diagnosis
 
@@ -51,8 +51,9 @@ Review logs privately before sharing: credentials, user data and GenAI prompts/r
 | Config unavailable / missing property | External Git reachability, reviewed config revision, native directory and selected profiles |
 | Port collision | Confirm which process/container owns the explicit local port; stop only your own process or coordinate a port change |
 | Gateway returns fallback/503 | Config, Eureka registration and advertised host/port; direct domain health; allow registry convergence |
-| Database startup/data failure | Effective local JDBC target and SQL initialization; check fixture schema compatibility before any reset |
+| Database startup/data failure | Effective local JDBC target and SQL initialization; MySQL fixtures share `petclinic` and Visits requires Customers' `pets` table and referenced pet fixtures first. Check schema/order compatibility before any reset; the HSQLDB Visits fixture has no cross-service foreign key |
 | Chat fails | Enabled starter, credentials from approved source, provider/model access, Vets availability and vector-store loading; do not retry paid operations blindly |
+| Packaged GenAI fails while loading vectors | Inspect the startup exception and classpath resource form: the existing loader calls `getFile()` on `vectorstore.json`; JAR and exploded-classpath execution differ. Preserve the vector file and do not delete it to bypass the failure, because the alternative branch creates provider embeddings |
 | Metrics absent | `/actuator/prometheus` exposure and Prometheus targets; do not assume a healthy UI means successful scraping |
 
 ## Monitoring boundaries
@@ -65,7 +66,7 @@ Java foreground output goes to the terminal; Maven reports are in each module's 
 
 Stop foreground Java processes with Ctrl-C in their own terminal. For detached processes, identify the exact PID owned by this run before sending a normal termination signal; never kill by a broad name match. A dedicated local Compose stack can be stopped with `docker compose stop`. Fixed `container_name` values and published ports in this file mean a different project name alone cannot safely run multiple copies on one host.
 
-On an explicitly disposable stack you own, `docker compose down` removes its containers/network; it is not a database backup or safe reset for retained data. Do not add volume/image deletion flags. See [Compose down documentation](https://docs.docker.com/reference/cli/docker/compose/down/). In-memory data disappears when its process stops; restarting may reseed only when effective configuration enables it. MySQL reset requires confirmation of the exact datasource, retention decision and a tested backup/restore path; the bundled SQL is demo initialization, not rollback migrations.
+On an explicitly disposable stack you own, `docker compose down` removes its containers/network; it is not a database backup or safe reset for retained data. Do not add volume/image deletion flags. See [Compose down documentation](https://docs.docker.com/reference/cli/docker/compose/down/). In-memory data disappears when its process stops; restarting may reseed only when effective configuration enables it. MySQL reset requires confirmation of the exact datasource, retention decision and a tested backup/restore path; the bundled SQL is demo initialization, not rollback migrations. For the shared MySQL fixture, include the Customers-to-Visits foreign-key dependency in restore planning; restoring one service's tables independently can leave missing referenced pets. No MySQL restore was exercised by this migration.
 
 A failed local change should be reverted with a normal reviewed Git revert of the responsible commit, preserving concurrent work; rebuild and rerun the relevant gates. This migration changes documentation, guardrails and CI gates only, so it needs no database rollback. For application release rollback, use a known recorded image digest and matching configuration revision through the actual environment owner's process; this repository does not define that process or establish a last-known-good release. A floating `latest` tag is not sufficient evidence of recoverability.
 
