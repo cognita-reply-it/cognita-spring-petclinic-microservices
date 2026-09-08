@@ -14,7 +14,7 @@ Initial documentation baseline passed (13 Markdown files, 8 modules). Initial Ma
 
 ## Next step and resumption
 
-Current phase: implementation and independent review complete; publish the reviewed branch. The reviewer found no blocking defect; R1 (historical-navigation links) was corrected by the architecture owner and rechecked. Final guard passes 20 Markdown documents/eight modules; all 11 guard regressions and staged whitespace check pass. Inspect Git status, this record and the single COG-173 Linear Codex Workpad before resuming. After publication, leave the implementation in Human Review and wait for explicit review/merge routing; never mark Done from implementation. Do not assume previous services are running or credentials available.
+Current phase: implementation and independent review complete; reviewed branch pushed and draft PR opened. The reviewer found no blocking defect; R1 (historical-navigation links) was corrected by the architecture owner and rechecked. Final guard passes 20 Markdown documents/eight modules; all 11 guard regressions and staged whitespace check pass. Inspect Git status, this record and the single COG-173 Linear Codex Workpad before resuming. Leave the implementation in Human Review after the workpad is current and wait for explicit review/merge routing; never mark Done from implementation. Do not assume previous services are running or credentials available.
 
 ## Reusable handoff shape
 
@@ -23,3 +23,11 @@ Record objective/issue; branch and HEAD; preserved changes; phase; decisions and
 ## Compatibility and rollback
 
 This migration changes development guidance and its validation only. Review/revert the responsible COG-173 commit through ordinary Git revert if needed, preserving subsequent concurrent changes. No database reset, registry publication, deploy or dependency rollback is needed. Existing source-level limitations remain documented and require separately scoped behavior work.
+
+## Delivery snapshot — 2026-09-08
+
+Implementation commit `baab9bbe062e3593cb56b8cff56ca18a3dbf0ed4` is pushed on `codex/cog-173-agent-ready`. [Draft PR #30](https://github.com/cognita-reply-it/cognita-spring-petclinic-microservices/pull/30) targets `main`, has the `maestro` label, and is attached to [COG-173](https://linear.app/cognita-reply/issue/COG-173/migra-il-repository-in-un-repo-agent-like). This delivery snapshot is a subsequent documentation commit; the exact final HEAD and Linear transition are recorded in the single Codex Workpad to avoid self-referential commits.
+
+First observed PR poll: Java build and metadata triage in progress, stale-incomplete job skipped; no comments or reviews. That is not a green CI or deployment claim. The final post-push check/review poll belongs to the workpad. Local acceptance: 9 Java tests and 11 guard tests pass, 20-document/eight-module guard passes, independent review has no open findings. No task-owned app processes or containers were started.
+
+Remaining limits: Docker/Podman unavailable; no MySQL/provider/production run; distributed/browser smoke not repeated in this 2 GiB worker. Use the documented prerequisites and an isolated suitable environment to close runtime evidence gaps. These limits do not prevent reviewing this guidance/guard change. No user decision is required for the delivered scope; merge/deploy remain separate workflow actions.
