@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prototipo cronologia visite — COG-157</title>
+  <link rel="stylesheet" href="../../../design-system/tokens.css">
+  <link rel="stylesheet" href="prototype.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#main" aria-label="Spring PetClinic"><span aria-hidden="true"></span></a>
+    <nav aria-label="Navigazione principale">
+      <a href="#main">Home</a>
+      <a class="active" href="#main">Owners</a>
+      <a href="#main">Veterinarians</a>
+    </nav>
+  </header>
+
+  <main id="main" class="page-shell">
+    <h1>Proprietario</h1>
+    <section class="owner-summary" aria-label="Dati del proprietario">
+      <div><span>Nome</span><strong>Eduardo Rodriguez</strong></div>
+      <div><span>Indirizzo</span><strong>2693 Commerce St.<br>McFarland</strong></div>
+      <div><span>Telefono</span><strong>6085558763</strong></div>
+      <div class="owner-actions">
+        <button type="button" class="button secondary">Modifica proprietario</button>
+        <button type="button" class="button primary">Aggiungi animale</button>
+      </div>
+    </section>
+
+    <fieldset class="pet-selector" id="pet-selector">
+      <legend>Animale selezionato</legend>
+      <label>
+        <input type="radio" name="pet" value="jewel" checked>
+        <span><strong>Jewel</strong> · cane · 07 mar 2010</span>
+      </label>
+      <label>
+        <input type="radio" name="pet" value="rosy">
+        <span><strong>Rosy</strong> · cane · 17 apr 2011</span>
+      </label>
+    </fieldset>
+
+    <section class="history" aria-labelledby="history-title">
+      <div class="history-heading">
+        <div>
+          <h2 id="history-title">Cronologia visite di Jewel</h2>
+          <p>Più recenti per prime. Le descrizioni sono mostrate integralmente come testo.</p>
+        </div>
+        <a class="button primary" href="#history-title">Aggiungi visita</a>
+      </div>
+
+      <form id="filters" class="filters" novalidate>
+        <label>Dal<input id="from-date" type="date" name="from"></label>
+        <label>Al<input id="to-date" type="date" name="to"></label>
+        <label class="search-field">Cerca nella descrizione<input id="query" type="search" name="query" autocomplete="off" placeholder="Testo letterale"></label>
+        <button class="button primary" type="submit">Applica filtri</button>
+        <button class="button secondary" type="reset">Azzera</button>
+        <output id="count" for="from-date to-date query" aria-live="polite"></output>
+      </form>
+
+      <div id="error" class="message error" role="alert" hidden></div>
+      <div id="status" class="message" role="status" aria-live="polite" hidden></div>
+      <ol id="timeline" class="timeline" aria-label="Visite ordinate dalla più recente"></ol>
+    </section>
+  </main>
+
+  <script src="timeline-core.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
