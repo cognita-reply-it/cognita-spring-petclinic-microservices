@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Benchmark prototipo cronologia — COG-157</title>
+  <link rel="stylesheet" href="../../../design-system/tokens.css">
+  <link rel="stylesheet" href="prototype.css">
+  <style>
+    .benchmark { width: min(1100px, calc(100% - 40px)); margin: 40px auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--pc-color-border-default); }
+    #render-target { position: fixed; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  </style>
+</head>
+<body>
+  <main class="benchmark">
+    <h1>Benchmark prototipo: 1.000 visite</h1>
+    <p id="benchmark-status" role="status">Esecuzione di 100 misure per scenario…</p>
+    <table>
+      <thead><tr><th>Scenario</th><th>Risultati</th><th>Misure</th><th>p95</th><th>Soglia</th><th>Esito</th></tr></thead>
+      <tbody id="benchmark-results"></tbody>
+    </table>
+    <p>Le descrizioni sintetiche includono valori vuoti, HTML come testo e lunghezze fino a 8.192 caratteri.</p>
+    <div id="render-target" aria-hidden="true"></div>
+  </main>
+  <script src="timeline-core.js"></script>
+  <script src="benchmark.js"></script>
+</body>
+</html>
