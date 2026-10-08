@@ -60,7 +60,7 @@ le loro porte dal dashboard Eureka.
 Questa è una sintesi delle dipendenze che incidono sull'uso del repository, non
 un inventario completo di ogni libreria:
 
-- Java `17` o superiore e Spring Boot `4.0.1`;
+- Java `17`, come fissato dal `pom.xml` principale, e Spring Boot `4.0.1`;
 - Spring Cloud `2025.1.0`;
 - Spring Cloud Config per la configurazione centralizzata;
 - Netflix Eureka per discovery server e client;
@@ -128,7 +128,7 @@ oppure, dalla directory del modulo, con:
 
 Procedura operativa:
 
-1. Verificare di avere Java 17 o superiore.
+1. Verificare di avere Java 17.
 2. Avviare Config Server.
 3. Avviare Discovery Server e attendere che Eureka sia disponibile su
    `http://localhost:8761`.
@@ -138,11 +138,13 @@ Procedura operativa:
 7. Avviare solo se utili Zipkin, Admin Server, Grafana e Prometheus.
 
 Se si vuole far leggere al Config Server un repository Git locale di
-configurazione, il README indica il profilo `native` e la variabile `GIT_REPO`,
-per esempio:
+configurazione, il README indica il profilo `native` e la variabile `GIT_REPO`.
+Eseguendo dalla radice del repository:
 
-```text
--Dspring.profiles.active=native -DGIT_REPO=/projects/spring-petclinic-microservices-config
+```bash
+GIT_REPO=/absolute/path/to/spring-petclinic-microservices-config \
+  ./mvnw -pl spring-petclinic-config-server spring-boot:run \
+  -Dspring-boot.run.profiles=native
 ```
 
 In questa modalità l'ordine è gestito manualmente e le porte dei servizi
@@ -189,17 +191,19 @@ avviare tutti i servizi dichiarati nel file.
 
 | Aspetto | Locale senza Docker | Docker Compose |
 | --- | --- | --- |
-| Preparazione | Java 17+ e avvio dei singoli moduli | Docker/Podman e immagini costruite con `buildDocker` |
+| Preparazione | Java 17 e avvio dei singoli moduli | Docker/Podman e immagini costruite con `buildDocker` |
 | Comando | IDE o `../mvnw spring-boot:run` per modulo | `docker compose up` dopo la build |
 | Ordine | Manuale: Config e Discovery per primi | Coordinato da health check e `depends_on` |
 | Porte applicative | Casuali per Customers, Vets, Visits e GenAI | Fisse da `8081` a `8084` |
 | Individuazione servizi | Dashboard Eureka | Porte host fisse e dashboard Eureka |
 | Componenti opzionali | Si avviano singolarmente solo se servono | Sono dichiarate nel file Compose |
 
-Il README documenta anche una modalità ibrida tramite
-`./scripts/run_all.sh`: l'infrastruttura viene avviata con Compose e le
-applicazioni Java con `nohup java -jar`. Non è però una delle due modalità
-principali descritte sopra.
+Il README documenta anche `./scripts/run_all.sh` come script ibrido legacy:
+l'infrastruttura viene avviata con Compose e le applicazioni Java con
+`nohup java -jar`. Lo script termina processi Petclinic e container Compose
+corrispondenti e attiva il profilo Chaos Monkey; va quindi usato solo in un
+ambiente esplicitamente monouso. Non è una delle due modalità principali
+descritte sopra.
 
 ## Limite delle informazioni
 
