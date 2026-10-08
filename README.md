@@ -1,15 +1,19 @@
 # Distributed version of the Spring PetClinic Sample Application built with Spring Cloud and Spring AI
 
-[![Build Status](https://github.com/spring-petclinic/spring-petclinic-microservices/actions/workflows/maven-build.yml/badge.svg)](https://github.com/spring-petclinic/spring-petclinic-microservices/actions/workflows/maven-build.yml)
+[![Build Status](https://github.com/cognita-reply-it/cognita-spring-petclinic-microservices/actions/workflows/maven-build.yml/badge.svg)](https://github.com/cognita-reply-it/cognita-spring-petclinic-microservices/actions/workflows/maven-build.yml)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 This microservices branch was initially derived from [AngularJS version](https://github.com/spring-petclinic/spring-petclinic-angular1) to demonstrate how to split sample Spring application into [microservices](http://www.martinfowler.com/articles/microservices.html).
 To achieve that goal, we use Spring Cloud Gateway, Spring Cloud Circuit Breaker, Spring Cloud Config, Micrometer Tracing, Resilience4j, Open Telemetry 
 and the Eureka Service Discovery from the [Spring Cloud Netflix](https://github.com/spring-cloud/spring-cloud-netflix) technology stack.
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/spring-petclinic/spring-petclinic-microservices)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/cognita-reply-it/cognita-spring-petclinic-microservices)
 
-[![Open in Codeanywhere](https://codeanywhere.com/img/open-in-codeanywhere-btn.svg)](https://app.codeanywhere.com/#https://github.com/spring-petclinic/spring-petclinic-microservices)
+[![Open in Codeanywhere](https://codeanywhere.com/img/open-in-codeanywhere-btn.svg)](https://app.codeanywhere.com/#https://github.com/cognita-reply-it/cognita-spring-petclinic-microservices)
+
+## Start here in this fork
+
+Read [AGENTS.md](AGENTS.md) for the operating contract and the [agent-readiness index](docs/agent-readiness/README.md) for architecture, reproducible setup, checks, operations and handoff. This fork uses Linear for authorized Maestro work and GitHub for PR delivery; see [CONTRIBUTING](CONTRIBUTING.md). Upstream history and educational resources below remain attribution, not delivery instructions.
 
 ## Starting services locally without Docker
 
@@ -28,13 +32,13 @@ If everything goes well, you can access the following services at given location
 
 You can tell Config Server to use your local Git repository by using `native` Spring profile and setting
 `GIT_REPO` environment variable, for example:
-`-Dspring.profiles.active=native -DGIT_REPO=/projects/spring-petclinic-microservices-config`
+`GIT_REPO=/absolute/path/to/spring-petclinic-microservices-config ./mvnw -pl spring-petclinic-config-server spring-boot:run -Dspring-boot.run.profiles=native` (from the repository root). See [setup](docs/agent-readiness/setup.md) for checking the external configuration revision.
 
 ## Starting services locally with docker-compose
 In order to start entire infrastructure using Docker, you have to build images by executing
-``bash
+```bash
 ./mvnw clean install -P buildDocker
-``
+```
 This requires `Docker` or `Docker desktop` to be installed and running.
 
 Alternatively you can also build all the images on `Podman`, which requires Podman or Podman Desktop to be installed and running.
@@ -64,7 +68,9 @@ are usually not enough and make the `docker-compose up` painfully slow.*
 
 
 ## Starting services locally with docker-compose and Java
-If you experience issues with running the system via docker-compose you can try running the `./scripts/run_all.sh` script that will start the infrastructure services via docker-compose and all the Java based applications via standard `nohup java -jar ...` command. The logs will be available under `${ROOT}/target/nameoftheapp.log`. 
+**Shared-worker caution:** `scripts/run_all.sh` kills matching Petclinic processes and Compose containers and activates chaos. Use the foreground startup path in [setup](docs/agent-readiness/setup.md); run this legacy script only in an explicitly disposable environment.
+
+In such an environment, `./scripts/run_all.sh` is a legacy script that will start the infrastructure services via docker-compose and all the Java based applications via standard `nohup java -jar ...` command. The logs will be available under `${ROOT}/target/nameoftheapp.log`.
 
 Each of the java based applications is started with the `chaos-monkey` profile in order to interact with Spring Boot Chaos Monkey. You can check out the [README](scripts/chaos/README.md) for more information about how to use the `./scripts/chaos/call_chaos.sh` helper script to enable assaults.
 
@@ -86,6 +92,7 @@ This project consists of several microservices:
 - **API Gateway**: Routes client requests to the appropriate services.
 - **Config Server**: Centralized configuration management for all services.
 - **Discovery Server**: Eureka-based service registry.
+- **Admin Server**: Operational Spring Boot Admin UI.
 
 Each service has its own specific role and communicates via REST APIs.
 
@@ -118,10 +125,7 @@ In order to start the microservice, perform the following steps:
 2. Create an OpenAI API key or an Azure OpenAI resource in your Azure Portal.
    Refer to the [OpenAI's quickstart](https://platform.openai.com/docs/quickstart) or [Azure's documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai/) for further information on how to obtain these.
    You only need to populate the provider you're using - either openai, or azure-openai.
-   If you don't have your own OpenAI API key, don't worry!
-   You can temporarily use the `demo` key, which OpenAI provides free of charge for demonstration purposes.
-   This `demo` key has a quota, is limited to the `gpt-4o-mini` model, and is intended solely for demonstration use.
-   With your own OpenAI account, you can test the `gpt-4o` model by modifying the `deployment-name` property of the `application.yml` file.
+   The `demo` fallback in application.yml is a placeholder, not proof of a working provider credential. Live chat requires a valid credential for the configured provider; see [setup](docs/agent-readiness/setup.md). For the default OpenAI starter, the model property is `spring.ai.openai.chat.options.model`; Azure uses its deployment-name property.
 3. Export your API keys and endpoint as environment variables:
     * either OpenAI:
     ```bash
@@ -135,7 +139,7 @@ In order to start the microservice, perform the following steps:
 
 ## In case you find a bug/suggested improvement for Spring Petclinic Microservices
 
-Our issue tracker is available here: https://github.com/spring-petclinic/spring-petclinic-microservices/issues
+For this fork, follow [CONTRIBUTING](CONTRIBUTING.md); Maestro work stays in its existing Linear issue.
 
 ## Database configuration
 
@@ -159,7 +163,7 @@ with the `mysql` Spring profile. Add the `--spring.profiles.active=mysql` as pro
 
 By default, at startup, database schema will be created and data will be populated.
 You may also manually create the PetClinic database and data by executing the `"db/mysql/{schema,data}.sql"` scripts of each 3 microservices. 
-In the `application.yml` of the [Configuration repository], set the `initialization-mode` to `never`.
+Before connecting a persistent database, review the external [Configuration repository] at a recorded revision and disable SQL initialization with the version-appropriate `spring.sql.init.mode=never`. The bundled schema scripts drop tables; do not run them against existing user data.
 
 If you are running the microservices with Docker, you have to add the `mysql` profile into the [Dockerfile](docker/Dockerfile):
 ```
@@ -185,7 +189,7 @@ A JMeter load testing script is available to stress the application and generate
 
 * An anonymous access and a Prometheus datasource are setup.
 * A `Spring Petclinic Metrics` Dashboard is available at the URL http://localhost:3030/d/69JXeR0iw/spring-petclinic-metrics.
-You will find the JSON configuration file here: [docker/grafana/dashboards/grafana-petclinic-dashboard.json]().
+You will find the JSON configuration file here: [dashboard JSON](docker/grafana/dashboards/grafana-petclinic-dashboard.json).
 * You may create your own dashboard or import the [Micrometer/SpringBoot dashboard](https://grafana.com/dashboards/4701) via the Import Dashboard menu item.
 The id for this dashboard is `4701`.
 
@@ -206,17 +210,17 @@ All those three REST controllers `OwnerResource`, `PetResource` and `VisitResour
 |---------------------------------|------------|
 | Configuration server            | [Config server properties](spring-petclinic-config-server/src/main/resources/application.yml) and [Configuration repository] |
 | Service Discovery               | [Eureka server](spring-petclinic-discovery-server) and [Service discovery client](spring-petclinic-vets-service/src/main/java/org/springframework/samples/petclinic/vets/VetsServiceApplication.java) |
-| API Gateway                     | [Spring Cloud Gateway starter](spring-petclinic-api-gateway/pom.xml) and [Routing configuration](/spring-petclinic-api-gateway/src/main/resources/application.yml) |
+| API Gateway                     | [Spring Cloud Gateway starter](spring-petclinic-api-gateway/pom.xml) and [Routing configuration](spring-petclinic-api-gateway/src/main/resources/application.yml) |
 | Docker Compose                  | [Spring Boot with Docker guide](https://spring.io/guides/gs/spring-boot-docker/) and [docker-compose file](docker-compose.yml) |
 | Circuit Breaker                 | [Resilience4j fallback method](spring-petclinic-api-gateway/src/main/java/org/springframework/samples/petclinic/api/boundary/web/ApiGatewayController.java)  |
 | Grafana / Prometheus Monitoring | [Micrometer implementation](https://micrometer.io/), [Spring Boot Actuator Production Ready Metrics] |
 
-|  Front-end module | Files |
-|-------------------|-------|
-| Node and NPM      | [The frontend-maven-plugin plugin downloads/installs Node and NPM locally then runs Bower and Gulp](spring-petclinic-ui/pom.xml)  |
-| Bower             | [JavaScript libraries are defined by the manifest file bower.json](spring-petclinic-ui/bower.json)  |
-| Gulp              | [Tasks automated by Gulp: minify CSS and JS, generate CSS from LESS, copy other static resources](spring-petclinic-ui/gulpfile.js)  |
-| Angular JS        | [app.js, controllers and templates](spring-petclinic-ui/src/scripts/)  |
+| Frontend contract | Source |
+|---|---|
+| AngularJS 1.8.3 and WebJars dependencies | [Gateway POM](spring-petclinic-api-gateway/pom.xml) |
+| Controllers, routes and templates | [Static scripts](spring-petclinic-api-gateway/src/main/resources/static/scripts) |
+| Shell and compiled CSS | [Static resources](spring-petclinic-api-gateway/src/main/resources/static) |
+| Optional SCSS generation | Gateway Maven `css` profile; no Node/Bower/Gulp module exists |
 
 ## Pushing to a Docker registry
 
@@ -244,9 +248,9 @@ For other Docker registries, provide the full URL to your repository, for exampl
 export REPOSITORY_PREFIX=harbor.myregistry.com/petclinic
 ```
 
-To push Docker image for the `linux/amd64` and the `linux/arm64` platform to your own registry, please use the command line:
+Only for an explicitly authorized registry publication, after relevant checks pass, the existing build profile can push both `linux/amd64` and `linux/arm64`. This command publishes images; it is not a local validation command:
 ```bash
-mvn clean install -Dmaven.test.skip -P buildDocker -Ddocker.image.prefix=${REPOSITORY_PREFIX} -Dcontainer.build.extraarg="--push" -Dcontainer.platform="linux/amd64,linux/arm64"
+./mvnw clean install -P buildDocker -Ddocker.image.prefix=${REPOSITORY_PREFIX} -Dcontainer.build.extraarg="--push" -Dcontainer.platform="linux/amd64,linux/arm64"
 ```
 
 The `scripts/pushImages.sh` and `scripts/tagImages.sh` shell scripts could also be used once you build your image with the `buildDocker` maven profile.
@@ -260,7 +264,7 @@ If you make changes to the `scss`, or upgrade Bootstrap, you will need to re-com
 using the Maven profile `css` of the `spring-petclinic-api-gateway`module.
 ```bash
 cd spring-petclinic-api-gateway
-mvn generate-resources -P css
+../mvnw generate-resources -P css
 ```
 
 ## Interesting Spring Petclinic forks
@@ -276,7 +280,7 @@ that could be used to implement the Pet Clinic then please join the community th
 
 ## Contributing
 
-The [issue tracker](https://github.com/spring-petclinic/spring-petclinic-microservices/issues) is the preferred channel for bug reports, features requests and submitting pull requests.
+Use [CONTRIBUTING](CONTRIBUTING.md) for this fork. The active Linear ticket is the work unit for Maestro; PRs target this repository’s `main`.
 
 For pull requests, editor preferences are available in the [editor config](.editorconfig) for easy use in common text editors. Read more and download plugins at <http://editorconfig.org>.
 

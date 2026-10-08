@@ -27,8 +27,8 @@ If you forked this repo as part of a course, bootcamp, or homework assignment:
 
 ## How to contribute
 
-1. **Open an issue first** to discuss the change you want to make.
-2. Fork the repository and create a branch: `git checkout -b bugfix/my-bug-fix`
+1. Discuss scope in the existing Linear issue for Maestro work; do not create a second external work unit. Other contributions should discuss scope in an issue first.
+2. In the selected checkout, create the workflow branch (`codex/<issue>-<slug>` for Maestro). PRs target `main` in `cognita-reply-it/cognita-spring-petclinic-microservices`.
 3. Make your changes and add tests if applicable.
 4. Run the test suite: `./mvnw test`
 5. Open a Pull Request using the provided template and fill it out completely.
@@ -40,3 +40,7 @@ Open an issue with:
 - Steps to reproduce
 - Expected vs actual behaviour
 - Spring Boot / Java version
+
+## Agent and validation guidance
+
+Read [AGENTS.md](AGENTS.md) and the [agent-readiness index](docs/agent-readiness/README.md). Follow injected WORKFLOW.md when present. Record actual checks and blockers; documentation-only changes use the documentation guard and relevant checks without claiming unexecuted application tests passed. Retain Description, Type of change and Checklist headings as the repository template convention. Automated triage checks body completeness and checkbox state; headings alone do not satisfy it.
